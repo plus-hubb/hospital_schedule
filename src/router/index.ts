@@ -1,14 +1,23 @@
-import { createRouter, createWebHistory } from "vue-router"
-import ScheduleCalendar from "../view/ScheduleCalendar.vue"
+
+import {createRouter,createWebHistory} from "vue-router"
+
+import Dashboard from "../pages/admin/dashboard.vue"
+
+
+const routes = [
+
+{
+path:"/admin/dashboard",
+component:Dashboard
+},
+
+
+
+]
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    {
-      path: "/",
-      component: ScheduleCalendar
-    }
-  ]
+history:createWebHistory(),
+routes
 })
 
 export default router
