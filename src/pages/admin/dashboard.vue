@@ -42,6 +42,7 @@ export default {components:{Navbar}}
 
 .layout{
 display:flex;
+font-family: Arial, Helvetica, sans-serif
 }
 
 .content{
@@ -53,6 +54,9 @@ min-height:100vh;
 
 h1{
 margin-bottom:20px;
+font-family: Arial, Helvetica, sans-serif
 }
+
+
 
 </style>
