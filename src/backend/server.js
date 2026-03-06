@@ -6,11 +6,11 @@ const app = express();
 app.use(cors());
 
 const db = mysql.createConnection({
-  host: "localhost",   // ปกติเป็น localhost
-  port: 3306,
+  host: "centerbeam.proxy.rlwy.net",   // ปกติเป็น localhost
+  port: 20615,
   user: "root",
-  password: "root",
-  database: "hospital_schedule"
+  password: "QYfXjUFTWJkUJhhROXGeAHNdHGijEmfG",
+  database: "railway"
 });
 
 
