@@ -9,7 +9,8 @@ import ManageGroups from "../pages/admin/manageGroups.vue"
 const routes = [
 
 {
-path:"/admin/dashboard",
+path:"/",
+name:"dashboard",
 component:Dashboard
 },
 
