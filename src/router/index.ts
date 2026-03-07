@@ -14,10 +14,7 @@ name:"dashboard",
 component:Dashboard
 },
 
-{
- path: "/:pathMatch(.*)*",
- redirect: "/"
-},
+
 
 {
 path:"/admin/doctors",
@@ -37,7 +34,12 @@ component:ManageDoctors
 {
 path:"/admin/manage-groups",
 component:ManageGroups
-}
+},
+
+{
+ path: "/:pathMatch(.*)*",
+ redirect: "/"
+},
 
 ]
 

@@ -14,6 +14,7 @@
 <th>Name</th>
 <th>Email</th>
 <th>Phone</th>
+<th>Password</th>
 <th>Group</th>
 </tr>
 
@@ -21,6 +22,7 @@
 <td>{{ doctor.name_doctor }}</td>
 <td>{{ doctor.email }}</td>
 <td>{{ doctor.phone }}</td>
+<td>{{ doctor.password }}</td>
 <td>{{ doctor.name_group }}</td>
 </tr>
 
@@ -42,6 +44,7 @@ interface Doctor {
   email: string
   name_group: string
   phone: string
+  password: string
 }
 
 const doctors = ref<Doctor[]>([])

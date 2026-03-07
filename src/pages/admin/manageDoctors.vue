@@ -1,10 +1,116 @@
 <script setup lang="ts">
+
+import { ref, onMounted } from "vue"
 import Navbar from "../../components/Navbar.vue"
 
-const doctors = [
-  {name:"Dr.A1",email:"a1@mail.com",group:"Group A"},
-  {name:"Dr.B1",email:"b1@mail.com",group:"Group B"}
-]
+interface Doctor{
+name_doctor:string
+email:string
+phone:string
+password:string
+id_group:number
+name_group:string
+}
+
+interface Group{
+id_group:number
+name_group:string
+}
+
+const doctors = ref<Doctor[]>([])
+const groups = ref<Group[]>([])
+
+const newDoctor = ref({
+name_doctor:"",
+email:"",
+phone:"",
+password:"",
+id_group:1
+})
+
+const editingDoctor = ref<any>(null)
+
+
+// FETCH DOCTORS
+const fetchDoctors = async ()=>{
+
+const res = await fetch("http://localhost:3000/doctors")
+doctors.value = await res.json()
+
+}
+
+
+// FETCH GROUPS
+const fetchGroups = async ()=>{
+
+const res = await fetch("http://localhost:3000/groups")
+groups.value = await res.json()
+
+}
+
+onMounted(()=>{
+fetchDoctors()
+fetchGroups()
+})
+
+
+// ADD
+const addDoctor = async ()=>{
+
+await fetch("http://localhost:3000/doctors",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(newDoctor.value)
+})
+
+fetchDoctors()
+
+newDoctor.value={
+name_doctor:"",
+email:"",
+phone:"",
+password:"",
+id_group:1
+}
+
+}
+
+
+// DELETE
+const deleteDoctor = async(email:string)=>{
+
+await fetch(`http://localhost:3000/doctors/${email}`,{
+method:"DELETE"
+})
+
+fetchDoctors()
+
+}
+
+
+// EDIT
+const startEdit=(doctor:Doctor)=>{
+editingDoctor.value={...doctor}
+}
+
+const updateDoctor = async()=>{
+
+await fetch(`http://localhost:3000/doctors/${editingDoctor.value.email}`,{
+method:"PUT",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(editingDoctor.value)
+})
+
+editingDoctor.value=null
+
+fetchDoctors()
+
+}
+
 </script>
 
 <template>
@@ -19,42 +125,104 @@ const doctors = [
 
 <div class="form">
 
-<input placeholder="Doctor name"/>
-<input placeholder="Email"/>
-<select>
-<option>Group A</option>
-<option>Group B</option>
-<option>Group C</option>
-<option>Group D</option>
+<input v-model="newDoctor.name_doctor" placeholder="Name">
+<input v-model="newDoctor.email" placeholder="Email">
+<input v-model="newDoctor.phone" placeholder="Phone">
+<input v-model="newDoctor.password" placeholder="Password">
+
+<select v-model.number="newDoctor.id_group">
+
+<option
+v-for="group in groups"
+:key="group.id_group"
+:value="group.id_group">
+
+{{ group.name_group }}
+
+</option>
+
 </select>
 
-<button>Add Doctor</button>
+<button @click="addDoctor">
+Add Doctor
+</button>
+
 
 </div>
 
+
 <table>
 
+<thead>
 <tr>
 <th>Name</th>
 <th>Email</th>
+<th>Phone</th>
+<th>Password</th>
 <th>Group</th>
 <th>Action</th>
 </tr>
+</thead>
 
-<tr v-for="doc in doctors">
+<tbody>
 
-<td>{{doc.name}}</td>
-<td>{{doc.email}}</td>
-<td>{{doc.group}}</td>
+<tr v-for="doctor in doctors" :key="doctor.email">
+
+<td v-if="editingDoctor?.email !== doctor.email">
+{{ doctor.name_doctor }}
+</td>
+
+<td v-else>
+<input v-model="editingDoctor.name_doctor">
+</td>
+
+
+<td>{{ doctor.email }}</td>
+
+
+<td v-if="editingDoctor?.email !== doctor.email">
+{{ doctor.phone }}
+</td>
+
+<td v-if="editingDoctor?.email !== doctor.email">
+{{ doctor.password }}
+</td>
+
+<td v-else>
+<input v-model="editingDoctor.phone">
+</td>
+
+
+<td>{{ doctor.name_group }}</td>
+
 
 <td>
 
-<button class="edit">Edit</button>
-<button class="delete">Delete</button>
+<button
+class="edit"
+v-if="editingDoctor?.email !== doctor.email"
+@click="startEdit(doctor)">
+Edit
+</button>
+
+<button
+class="save"
+v-else
+@click="updateDoctor">
+Save
+</button>
+
+<button
+class="delete"
+@click="deleteDoctor(doctor.email)">
+Delete
+</button>
 
 </td>
 
 </tr>
+
+</tbody>
 
 </table>
 
@@ -63,6 +231,7 @@ const doctors = [
 </div>
 
 </template>
+
 
 <style scoped>
 
@@ -95,14 +264,22 @@ border:none;
 border-radius:6px;
 background:#333;
 color:white;
-}
-
-.edit{
-background:#4caf50;
+cursor:pointer;
 }
 
 .delete{
 background:#e53935;
+margin-left:5px;
+}
+
+.edit{
+background:#1976d2;
+margin-right:5px;
+}
+
+.save{
+background:#43a047;
+margin-right:5px;
 }
 
 table{
