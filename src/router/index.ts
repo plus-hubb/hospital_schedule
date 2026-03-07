@@ -1,4 +1,4 @@
-import {createRouter,createWebHistory} from "vue-router"
+import {createRouter,createWebHashHistory} from "vue-router"
 
 import Dashboard from "../pages/admin/dashboard.vue"
 import Doctors from "../pages/admin/doctors.vue"
@@ -42,7 +42,7 @@ component:ManageGroups
 ]
 
 const router = createRouter({
-history:createWebHistory(),
+history:createWebHashHistory(),
 routes
 })
 
