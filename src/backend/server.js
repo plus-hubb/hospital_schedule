@@ -29,7 +29,31 @@ app.get("/db-test", (req, res) => {
   });
 });
 
+// API ดึงรายชื่อแพทย์
+app.get("/doctors", (req, res) => {
 
+const sql = `
+SELECT 
+d.name_doctor,
+d.email,
+d.phone,
+g.name_group
+FROM doctors d
+JOIN doctor_groups g
+ON d.id_group = g.id_group
+`;
+
+db.query(sql,(err,result)=>{
+if(err){
+console.log(err)
+return res.status(500).json(err)
+}
+
+res.json(result)
+
+})
+
+});
 
 
 app.listen(3000, () => {

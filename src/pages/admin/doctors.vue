@@ -13,13 +13,15 @@
 <tr>
 <th>Name</th>
 <th>Email</th>
+<th>Phone</th>
 <th>Group</th>
 </tr>
 
-<tr>
-<td>Dr.A1</td>
-<td>a1@mail.com</td>
-<td>Group A</td>
+<tr v-for="doctor in doctors" :key="doctor.email">
+<td>{{ doctor.name_doctor }}</td>
+<td>{{ doctor.email }}</td>
+<td>{{ doctor.phone }}</td>
+<td>{{ doctor.name_group }}</td>
 </tr>
 
 </table>
@@ -31,7 +33,34 @@
 </template>
 
 <script setup lang="ts">
+
+import { ref, onMounted } from "vue"
 import Navbar from "../../components/Navbar.vue"
+
+interface Doctor {
+  name_doctor: string
+  email: string
+  name_group: string
+  phone: string
+}
+
+const doctors = ref<Doctor[]>([])
+
+onMounted(async () => {
+
+try{
+
+const res = await fetch("http://localhost:3000/doctors")
+const data = await res.json()
+
+doctors.value = data
+
+}catch(err){
+console.error(err)
+}
+
+})
+
 </script>
 
 <style scoped>
