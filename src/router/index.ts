@@ -54,7 +54,7 @@ history:createWebHashHistory(),
 routes
 })
 
-router.beforeEach((to,from,next)=>{
+router.beforeEach((to,_,next)=>{
 
 const role = localStorage.getItem("role")
 
