@@ -53,7 +53,7 @@ onMounted(async () => {
 
 try{
 
-const res = await fetch("http://localhost:3000/doctors")
+const res = await fetch("https://balanced-upliftment-production-c650.up.railway.app/doctors")
 const data = await res.json()
 
 doctors.value = data

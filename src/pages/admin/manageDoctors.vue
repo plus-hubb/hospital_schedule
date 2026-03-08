@@ -34,7 +34,7 @@ const editingDoctor = ref<any>(null)
 // FETCH DOCTORS
 const fetchDoctors = async ()=>{
 
-const res = await fetch("http://localhost:3000/doctors")
+const res = await fetch("https://balanced-upliftment-production-c650.up.railway.app/doctors")
 doctors.value = await res.json()
 
 }
@@ -43,7 +43,7 @@ doctors.value = await res.json()
 // FETCH GROUPS
 const fetchGroups = async ()=>{
 
-const res = await fetch("http://localhost:3000/groups")
+const res = await fetch("https://balanced-upliftment-production-c650.up.railway.app/groups")
 groups.value = await res.json()
 
 }
@@ -57,7 +57,7 @@ fetchGroups()
 // ADD
 const addDoctor = async ()=>{
 
-await fetch("http://localhost:3000/doctors",{
+await fetch("https://balanced-upliftment-production-c650.up.railway.app/doctors",{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
@@ -81,7 +81,7 @@ id_group:1
 // DELETE
 const deleteDoctor = async(email:string)=>{
 
-await fetch(`http://localhost:3000/doctors/${email}`,{
+await fetch(`https://balanced-upliftment-production-c650.up.railway.app/doctors/${email}`,{
 method:"DELETE"
 })
 
@@ -97,7 +97,7 @@ editingDoctor.value={...doctor}
 
 const updateDoctor = async()=>{
 
-await fetch(`http://localhost:3000/doctors/${editingDoctor.value.email}`,{
+await fetch(`https://balanced-upliftment-production-c650.up.railway.app/doctors/${editingDoctor.value.email}`,{
 method:"PUT",
 headers:{
 "Content-Type":"application/json"
