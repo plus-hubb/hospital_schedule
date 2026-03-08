@@ -141,6 +141,51 @@ res.json({message:"Doctor deleted"})
 
 })
 
+
+// log in 
+
+app.post("/login", (req,res)=>{
+
+const {email,password} = req.body
+
+// check admin
+const adminSQL = "SELECT * FROM admins WHERE email=? AND password=?"
+
+db.query(adminSQL,[email,password],(err,adminResult)=>{
+
+if(adminResult.length > 0){
+
+return res.json({
+role:"admin",
+user:adminResult[0]
+})
+
+}
+
+// check doctor
+const doctorSQL = "SELECT * FROM doctors WHERE email=? AND password=?"
+
+db.query(doctorSQL,[email,password],(err,doctorResult)=>{
+
+if(doctorResult.length > 0){
+
+return res.json({
+role:"doctor",
+user:doctorResult[0]
+})
+
+}
+
+res.status(401).json({
+message:"Invalid email or password"
+})
+
+})
+
+})
+
+})
+
 app.listen(3000,()=>{
 console.log("Server running http://localhost:3000")
 })

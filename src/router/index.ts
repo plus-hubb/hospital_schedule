@@ -5,12 +5,12 @@ import Doctors from "../pages/admin/doctors.vue"
 import Groups from "../pages/admin/groups.vue"
 import ManageDoctors from "../pages/admin/manageDoctors.vue"
 import ManageGroups from "../pages/admin/manageGroups.vue"
+import Login from "../pages/login.vue"
 
 const routes = [
 
 {
-path:"/",
-name:"dashboard",
+path:"/admin/dashboard",
 component:Dashboard
 },
 
@@ -37,6 +37,12 @@ component:ManageGroups
 },
 
 {
+path:"/",
+name:"login",
+component:Login
+},
+
+{
  path: "/:pathMatch(.*)*",
  redirect: "/"
 },
@@ -46,6 +52,26 @@ component:ManageGroups
 const router = createRouter({
 history:createWebHashHistory(),
 routes
+})
+
+router.beforeEach((to,from,next)=>{
+
+const role = localStorage.getItem("role")
+
+if(to.path.startsWith("/admin") && role!=="admin"){
+
+return next("/")
+
+}
+
+if(to.path.startsWith("/doctor") && role!=="doctor"){
+
+return next("/")
+
+}
+
+next()
+
 })
 
 export default router
