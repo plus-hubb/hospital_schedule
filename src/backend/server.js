@@ -34,6 +34,8 @@ app.get("/doctors",(req,res)=>{
 
 const sql=`
 SELECT 
+
+d.id_doctor,
 d.name_doctor,
 d.email,
 d.phone,
@@ -105,18 +107,18 @@ res.json({message:"Doctor added"})
 // UPDATE DOCTOR
 // =====================
 
-app.put("/doctors/:email",(req,res)=>{
+app.put("/doctors/:id",(req,res)=>{
 
 const {name_doctor,phone,password,id_group}=req.body
 
 const sql=`
 UPDATE doctors
 SET name_doctor=?, phone=?, password=?, id_group=?
-WHERE email=?
+WHERE id_doctor=?
 `
 
 db.query(sql,
-[name_doctor,phone,password,id_group,req.params.email],
+[name_doctor,phone,password,id_group,req.params.id],
 (err)=>{
 
 if(err) return res.status(500).json(err)
@@ -132,11 +134,11 @@ res.json({message:"Doctor updated"})
 // DELETE
 // =====================
 
-app.delete("/doctors/:email",(req,res)=>{
+app.delete("/doctors/:id",(req,res)=>{
 
-const sql="DELETE FROM doctors WHERE email=?"
+const sql="DELETE FROM doctors WHERE id_doctor=?"
 
-db.query(sql,[req.params.email],(err)=>{
+db.query(sql,[req.params.id],(err)=>{
 
 if(err) return res.status(500).json(err)
 

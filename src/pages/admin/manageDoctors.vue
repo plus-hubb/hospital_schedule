@@ -4,6 +4,7 @@ import { ref, onMounted } from "vue"
 import Navbar from "../../components/Navbar.vue"
 
 interface Doctor{
+id_doctor:number
 name_doctor:string
 email:string
 phone:string
@@ -79,9 +80,9 @@ id_group:1
 
 
 // DELETE
-const deleteDoctor = async(email:string)=>{
+const deleteDoctor = async(id:number)=>{
 
-await fetch(`https://balanced-upliftment-production-c650.up.railway.app/doctors/${email}`,{
+await fetch(`https://balanced-upliftment-production-c650.up.railway.app/doctors/${id}`,{
 method:"DELETE"
 })
 
@@ -97,7 +98,7 @@ editingDoctor.value={...doctor}
 
 const updateDoctor = async()=>{
 
-await fetch(`https://balanced-upliftment-production-c650.up.railway.app/doctors/${editingDoctor.value.email}`,{
+await fetch(`https://balanced-upliftment-production-c650.up.railway.app/doctors/${editingDoctor.value.id_doctor}`,{
 method:"PUT",
 headers:{
 "Content-Type":"application/json"
@@ -166,10 +167,10 @@ Add Doctor
 
 <tbody>
 
-<tr v-for="doctor in doctors" :key="doctor.email">
+<tr v-for="doctor in doctors" :key="doctor.id_doctor">
 
 <td>
-<span v-if="editingDoctor?.email !== doctor.email">
+<span v-if="editingDoctor?.id_doctor !== doctor.id_doctor">
 {{ doctor.name_doctor }}
 </span>
 <input v-else v-model="editingDoctor.name_doctor">
@@ -178,14 +179,14 @@ Add Doctor
 <td>{{ doctor.email }}</td>
 
 <td>
-<span v-if="editingDoctor?.email !== doctor.email">
+<span v-if="editingDoctor?.id_doctor !== doctor.id_doctor">
 {{ doctor.phone }}
 </span>
 <input v-else v-model="editingDoctor.phone">
 </td>
 
 <td>
-<span v-if="editingDoctor?.email !== doctor.email">
+<span v-if="editingDoctor?.id_doctor !== doctor.id_doctor">
 {{ doctor.password }}
 </span>
 <input v-else v-model="editingDoctor.password">
@@ -197,7 +198,7 @@ Add Doctor
 
 <button
 class="edit"
-v-if="editingDoctor?.email !== doctor.email"
+v-if="editingDoctor?.id_doctor !== doctor.id_doctor"
 @click="startEdit(doctor)">
 Edit
 </button>
@@ -211,7 +212,7 @@ Save
 
 <button
 class="delete"
-@click="deleteDoctor(doctor.email)">
+@click="deleteDoctor(doctor.id_doctor)">
 Delete
 </button>
 
