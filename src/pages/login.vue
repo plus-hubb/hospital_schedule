@@ -13,7 +13,7 @@ const login = async()=>{
 
 error.value=""
 
-const res = await fetch("http://localhost:3000/login",{
+const res = await fetch("https://balanced-upliftment-production-c650.up.railway.app/login",{
 
 method:"POST",
 headers:{
