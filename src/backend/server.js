@@ -186,6 +186,10 @@ message:"Invalid email or password"
 
 })
 
+app.get("/", (req, res) => {
+  res.send("Hospital API is running");
+});
+
 // =====================
 // START SERVER
 // =====================
