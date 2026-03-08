@@ -168,33 +168,30 @@ Add Doctor
 
 <tr v-for="doctor in doctors" :key="doctor.email">
 
-<td v-if="editingDoctor?.email !== doctor.email">
+<td>
+<span v-if="editingDoctor?.email !== doctor.email">
 {{ doctor.name_doctor }}
+</span>
+<input v-else v-model="editingDoctor.name_doctor">
 </td>
-
-<td v-else>
-<input v-model="editingDoctor.name_doctor">
-</td>
-
 
 <td>{{ doctor.email }}</td>
 
-
-<td v-if="editingDoctor?.email !== doctor.email">
+<td>
+<span v-if="editingDoctor?.email !== doctor.email">
 {{ doctor.phone }}
+</span>
+<input v-else v-model="editingDoctor.phone">
 </td>
 
-<td v-if="editingDoctor?.email !== doctor.email">
+<td>
+<span v-if="editingDoctor?.email !== doctor.email">
 {{ doctor.password }}
+</span>
+<input v-else v-model="editingDoctor.password">
 </td>
-
-<td v-else>
-<input v-model="editingDoctor.phone">
-</td>
-
 
 <td>{{ doctor.name_group }}</td>
-
 
 <td>
 
