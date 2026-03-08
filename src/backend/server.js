@@ -12,14 +12,6 @@ app.use(express.json())
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-app.use(express.static(path.join(__dirname, "../../dist")))
-
-app.use(express.static(path.join(__dirname,"../../dist")))
-
-app.use((req,res)=>{
-res.sendFile(path.join(__dirname,"../../dist/index.html"))
-})
-
 const db = mysql.createConnection({
   host: "centerbeam.proxy.rlwy.net",
   port: 20615,
@@ -202,6 +194,13 @@ message:"Invalid email or password"
 app.get("/", (req, res) => {
   res.send("Hospital API is running");
 });
+
+app.use(express.static(path.join(__dirname,"../../dist")))
+
+app.use((req,res)=>{
+res.sendFile(path.join(__dirname,"../../dist/index.html"))
+})
+
 
 // =====================
 // START SERVER
