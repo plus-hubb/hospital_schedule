@@ -4,10 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
-  },
+  "dev": "vite",
+  "build": "vue-tsc -b && vite build",
+  "preview": "vite preview",
+  "start": "node src/backend/server.js"
+},
   "dependencies": {
     "@fullcalendar/core": "^6.1.20",
     "@fullcalendar/daygrid": "^6.1.20",
