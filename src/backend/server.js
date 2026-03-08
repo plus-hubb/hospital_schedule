@@ -195,11 +195,7 @@ app.get("/", (req, res) => {
   res.send("Hospital API is running");
 });
 
-app.use(express.static(path.join(__dirname,"../../dist")))
 
-app.use((req,res)=>{
-res.sendFile(path.join(__dirname,"../../dist/index.html"))
-})
 
 
 // =====================
