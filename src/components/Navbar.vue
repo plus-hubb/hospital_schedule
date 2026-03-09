@@ -30,35 +30,51 @@ height:100vh;
 background:#ffffff;
 border-right:1px solid #eee;
 padding:20px;
+font-family: Arial, Helvetica, sans-serif
 }
 
 .logo{
 font-size:20px;
+font-weight:600;
 margin-bottom:30px;
+color:#1976d2;
 }
 
 nav{
 display:flex;
 flex-direction:column;
-gap:10px;
+gap:8px;
 }
 
 .menu-title{
 font-size:12px;
 color:#888;
 margin-top:20px;
+margin-bottom:5px;
+text-transform:uppercase;
+letter-spacing:0.5px;
 }
 
 a{
 text-decoration:none;
 color:#333;
-padding:8px;
+padding:10px 12px;
 border-radius:6px;
+transition:0.2s;
 }
+
+/* hover */
 
 a:hover{
-background:#f4f4f4;
+background:#e3f2fd;
+color:#1976d2;
 }
 
+/* active route */
+
+.router-link-active{
+background:#1976d2;
+color:white;
+}
 
 </style>

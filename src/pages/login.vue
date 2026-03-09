@@ -92,48 +92,66 @@ height:100vh;
 display:flex;
 align-items:center;
 justify-content:center;
-background:#f8f8f8;
-font-family:Arial;
+background:#f4f6f8;
+font-family:Arial, Helvetica, sans-serif;
 }
 
 .login-box{
-width:320px;
+width:340px;
 background:white;
 padding:40px;
-border-radius:10px;
-box-shadow:0 2px 10px rgba(0,0,0,0.05);
+border-radius:12px;
+box-shadow:0 4px 12px rgba(0,0,0,0.05);
 text-align:center;
 }
+
+/* TITLE */
 
 h1{
 margin-bottom:25px;
 font-weight:600;
+color:#1976d2;
 }
+
+/* INPUT */
 
 input{
 width:100%;
 padding:10px;
 margin-bottom:15px;
-border:1px solid #ddd;
+border:1px solid #90caf9;
 border-radius:6px;
+outline:none;
+transition:0.2s;
 }
+
+input:focus{
+border-color:#1976d2;
+box-shadow:0 0 0 2px #e3f2fd;
+}
+
+/* BUTTON */
 
 button{
 width:100%;
 padding:10px;
 border:none;
-background:black;
+background:#1976d2;
 color:white;
 border-radius:6px;
 cursor:pointer;
+transition:0.2s;
+font-weight:500;
 }
 
 button:hover{
-opacity:0.9;
+background:#1565c0;
 }
 
+/* ERROR */
+
 .error{
-color:red;
+color:#e53935;
 font-size:14px;
 margin-bottom:10px;
 }

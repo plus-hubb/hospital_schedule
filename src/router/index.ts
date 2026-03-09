@@ -38,7 +38,7 @@ component:ManageGroups
 },
 
 {
-path:"/docter/homepage",
+path:"/doctor/homepage",
 component:Homepage
 },
 

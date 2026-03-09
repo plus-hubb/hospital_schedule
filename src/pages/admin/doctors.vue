@@ -76,19 +76,45 @@ font-family: Arial, Helvetica, sans-serif
 .content{
 padding:30px;
 flex:1;
-background:#fafafa;
+background:#f4f6f8;
 }
+
+h1{
+color:#1976d2;
+margin-bottom:20px;
+}
+
+/* TABLE CARD */
 
 table{
 width:100%;
 background:white;
 border-collapse:collapse;
+border-radius:10px;
+overflow:hidden;
+box-shadow:0 2px 8px rgba(0,0,0,0.05);
 }
 
-th,td{
+/* HEADER */
+
+th{
+background:#1976d2;
+color:white;
+padding:12px;
+text-align:left;
+}
+
+/* BODY */
+
+td{
 padding:10px;
 border-bottom:1px solid #eee;
-text-align:left;
+}
+
+/* ROW HOVER */
+
+tr:hover{
+background:#f5f5f5;
 }
 
 </style>

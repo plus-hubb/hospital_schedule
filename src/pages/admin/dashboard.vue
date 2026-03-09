@@ -48,15 +48,80 @@ font-family: Arial, Helvetica, sans-serif
 .content{
 flex:1;
 padding:30px;
-background:#fafafa;
+background:#f4f6f8;
 min-height:100vh;
 }
 
 h1{
+color:#1976d2;
 margin-bottom:20px;
-font-family: Arial, Helvetica, sans-serif
 }
 
+/* CALENDAR CARD */
 
+:deep(.fc){
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* HEADER BUTTON */
+
+:deep(.fc-button){
+background:#1976d2 !important;
+border:none !important;
+border-radius:6px !important;
+padding:6px 12px !important;
+}
+
+:deep(.fc-button:hover){
+background:#1565c0 !important;
+}
+
+/* DAY HEADER */
+
+:deep(.fc-col-header-cell){
+background:#e3f2fd;
+color:#1976d2;
+font-weight:600;
+padding:8px 0;
+}
+
+/* GRID BORDER */
+
+:deep(.fc-scrollgrid){
+border:1px solid #eee;
+}
+
+/* TODAY */
+
+:deep(.fc-day-today){
+background:#e3f2fd !important;
+}
+
+/* EVENT */
+
+:deep(.fc-event){
+background:#1976d2 !important;
+border:none !important;
+border-radius:6px;
+padding:3px 6px;
+font-size:13px;
+}
+
+/* HOVER DAY */
+
+:deep(.fc-daygrid-day:hover){
+background:#f5f5f5;
+cursor:pointer;
+}
+
+/* REMOVE STRONG BORDER */
+
+:deep(.fc-theme-standard td),
+:deep(.fc-theme-standard th){
+border-color:#eee;
+}
 
 </style>
