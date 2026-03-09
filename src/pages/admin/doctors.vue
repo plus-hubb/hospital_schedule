@@ -70,7 +70,6 @@ console.error(err)
 
 .layout{
 display:flex;
-font-family: Arial, Helvetica, sans-serif
 }
 
 .content{

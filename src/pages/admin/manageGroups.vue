@@ -54,43 +54,48 @@ const groups = [
 
 .layout{
 display:flex;
-font-family: Arial, Helvetica, sans-serif
 }
 
 .content{
 flex:1;
 padding:30px;
 background:#f4f6f8;
+min-height:100vh;
 }
 
 h1{
 color:#1976d2;
 margin-bottom:20px;
+font-weight:600;
 }
 
-/* FORM */
+/* ===== FORM CARD ===== */
 
 .form{
 display:flex;
 gap:10px;
 margin-bottom:20px;
-background:#e3f2fd;
+background:white;
 padding:15px;
 border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,0.05);
 }
 
 input{
-padding:8px;
+padding:9px;
 border:1px solid #90caf9;
 border-radius:6px;
 outline:none;
+flex:1;
+transition:0.2s;
 }
 
 input:focus{
 border-color:#1976d2;
+box-shadow:0 0 0 2px #e3f2fd;
 }
 
-/* BUTTON */
+/* ===== BUTTON ===== */
 
 button{
 padding:8px 14px;
@@ -100,15 +105,17 @@ background:#1976d2;
 color:white;
 cursor:pointer;
 transition:0.2s;
+font-weight:500;
 }
 
 button:hover{
 background:#1565c0;
 }
 
+/* ACTION BUTTONS */
+
 .edit{
 background:#fb8c00;
-margin-right:5px;
 }
 
 .edit:hover{
@@ -123,7 +130,7 @@ background:#e53935;
 background:#c62828;
 }
 
-/* GROUP LIST */
+/* ===== GROUP LIST CARD ===== */
 
 .group-list{
 width:100%;
@@ -135,12 +142,15 @@ list-style:none;
 padding:0;
 }
 
+/* ROW */
+
 .group-list li{
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:12px 15px;
+padding:14px 18px;
 border-bottom:1px solid #eee;
+transition:0.2s;
 }
 
 .group-list li:hover{
@@ -150,6 +160,8 @@ background:#f5f5f5;
 .group-list li:last-child{
 border-bottom:none;
 }
+
+/* ACTION AREA */
 
 .actions{
 display:flex;

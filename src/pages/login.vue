@@ -1,85 +1,91 @@
 <script setup lang="ts">
-
-import {ref} from "vue"
-import {useRouter} from "vue-router"
+import { ref } from "vue"
+import { useRouter } from "vue-router"
 
 const router = useRouter()
 
 const email = ref("")
 const password = ref("")
 const error = ref("")
+const loading = ref(false)
 
-const login = async()=>{
 
-error.value=""
+const login = async () => {
 
-const res = await fetch("https://balanced-upliftment-production-c650.up.railway.app/login",{
+  error.value = ""
+  loading.value = true
 
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-email:email.value,
-password:password.value
-})
+  try{
 
-})
+    const res = await fetch("https://balanced-upliftment-production-c650.up.railway.app/login",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        email:email.value,
+        password:password.value
+      })
+    })
 
-const data = await res.json()
+    const data = await res.json()
 
-if(!res.ok){
+    if(!res.ok){
+      error.value="Email or password incorrect"
+      loading.value=false
+      return
+    }
 
-error.value="Email or password incorrect"
-return
+    localStorage.setItem("role",data.role)
+    localStorage.setItem("user",JSON.stringify(data.user))
 
+    if(data.role==="admin"){
+      router.push("/admin/dashboard")
+    }else{
+      router.push("/doctor/homepage")
+    }
+
+  }catch(err){
+    error.value="Server error"
+  }
+
+  loading.value=false
 }
-
-localStorage.setItem("role",data.role)
-localStorage.setItem("user",JSON.stringify(data.user))
-
-if(data.role==="admin"){
-
-router.push("/admin/dashboard")
-
-}else{
-
-router.push("/doctor/homepage")
-
-}
-
-}
-
 </script>
 
 <template>
 
 <div class="login-page">
 
-<div class="login-box">
+  <div class="login-card">
 
-<h1>Hospital Login</h1>
+    <div class="logo">
+      🏥
+    </div>
 
-<input
-v-model="email"
-placeholder="Email"
-/>
+    <h1>Hospital System</h1>
+    <p class="subtitle">Login in to continue</p>
 
-<input
-v-model="password"
-type="password"
-placeholder="Password"
-/>
+    <input
+      v-model="email"
+      placeholder="Email"
+    />
 
-<p class="error" v-if="error">
-{{error}}
-</p>
+    <input
+      v-model="password"
+      type="password"
+      placeholder="Password"
+    />
 
-<button @click="login">
-Login
-</button>
+    <p class="error" v-if="error">
+      {{error}}
+    </p>
 
-</div>
+    <button @click="login" :disabled="loading">
+      {{ loading ? "Signing in..." : "Login" }}
+    </button>
+
+  </div>
 
 </div>
 
@@ -87,72 +93,96 @@ Login
 
 <style scoped>
 
+/* PAGE */
+
 .login-page{
 height:100vh;
 display:flex;
 align-items:center;
 justify-content:center;
-background:#f4f6f8;
-font-family:Arial, Helvetica, sans-serif;
+background:linear-gradient(135deg,#f4f6f8,#e3f2fd);
+
 }
 
-.login-box{
-width:340px;
+/* CARD */
+
+.login-card{
+width:360px;
 background:white;
 padding:40px;
-border-radius:12px;
-box-shadow:0 4px 12px rgba(0,0,0,0.05);
+border-radius:16px;
+box-shadow:0 8px 24px rgba(0,0,0,0.08);
 text-align:center;
+}
+
+/* LOGO */
+
+.logo{
+font-size:40px;
+margin-bottom:10px;
 }
 
 /* TITLE */
 
 h1{
-margin-bottom:25px;
-font-weight:600;
+font-size:22px;
+margin-bottom:4px;
 color:#1976d2;
+}
+
+.subtitle{
+font-size:14px;
+color:#777;
+margin-bottom:25px;
 }
 
 /* INPUT */
 
 input{
 width:100%;
-padding:10px;
-margin-bottom:15px;
-border:1px solid #90caf9;
-border-radius:6px;
+padding:12px;
+margin-bottom:14px;
+border:1px solid #ddd;
+border-radius:8px;
 outline:none;
-transition:0.2s;
+font-size:14px;
+transition:all .2s;
 }
 
 input:focus{
 border-color:#1976d2;
-box-shadow:0 0 0 2px #e3f2fd;
+box-shadow:0 0 0 3px rgba(25,118,210,0.15);
 }
 
 /* BUTTON */
 
 button{
 width:100%;
-padding:10px;
+padding:12px;
 border:none;
 background:#1976d2;
 color:white;
-border-radius:6px;
+border-radius:8px;
 cursor:pointer;
-transition:0.2s;
 font-weight:500;
+transition:all .2s;
+font-family:'Outfit', sans-serif;
 }
 
 button:hover{
 background:#1565c0;
 }
 
+button:disabled{
+background:#90caf9;
+cursor:not-allowed;
+}
+
 /* ERROR */
 
 .error{
 color:#e53935;
-font-size:14px;
+font-size:13px;
 margin-bottom:10px;
 }
 

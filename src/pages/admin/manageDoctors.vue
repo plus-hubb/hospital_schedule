@@ -235,7 +235,6 @@ Delete
 
 .layout{
 display:flex;
-font-family: Arial, Helvetica, sans-serif
 }
 
 .content{
@@ -329,6 +328,7 @@ th{
 background:#1976d2;
 color:white;
 padding:12px;
+text-align:left;
 }
 
 td{
