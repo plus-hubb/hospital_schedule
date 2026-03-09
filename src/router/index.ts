@@ -72,9 +72,7 @@ return next("/")
 }
 
 if(to.path.startsWith("/doctor") && role!=="doctor"){
-
 return next("/")
-
 }
 
 next()
