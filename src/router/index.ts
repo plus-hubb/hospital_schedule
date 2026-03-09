@@ -6,6 +6,7 @@ import Groups from "../pages/admin/groups.vue"
 import ManageDoctors from "../pages/admin/manageDoctors.vue"
 import ManageGroups from "../pages/admin/manageGroups.vue"
 import Login from "../pages/login.vue"
+import Homepage from "../pages/doctor/homepage.vue"
 
 const routes = [
 
@@ -37,10 +38,16 @@ component:ManageGroups
 },
 
 {
+path:"/docter/homepage",
+component:Homepage
+},
+
+{
 path:"/",
 name:"login",
 component:Login
 },
+
 
 {
  path: "/:pathMatch(.*)*",
