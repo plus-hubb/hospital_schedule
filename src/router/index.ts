@@ -7,6 +7,8 @@ import ManageDoctors from "../pages/admin/manageDoctors.vue"
 import ManageGroups from "../pages/admin/manageGroups.vue"
 import Login from "../pages/login.vue"
 import Homepage from "../pages/doctor/homepage.vue"
+import MySchedule from "../pages/doctor/mySchedule.vue"
+import Notifications from "../pages/doctor/notification.vue"
 
 const routes = [
 
@@ -48,6 +50,15 @@ name:"login",
 component:Login
 },
 
+{
+path:"/doctor/mySchedule",
+component:MySchedule
+},
+
+{
+path:"/doctor/notification",
+component:Notifications
+},  
 
 {
  path: "/:pathMatch(.*)*",
