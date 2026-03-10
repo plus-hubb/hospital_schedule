@@ -5,49 +5,66 @@ import dayGridPlugin from "@fullcalendar/daygrid"
 import interactionPlugin from "@fullcalendar/interaction"
 
 import NavbarDoc from "../../components/NavbarDoc.vue"
-import { getHolidays } from "../../services/holidayservice"
 
-const calendarOptions:any = reactive({
+// ── เปลี่ยนจาก getHolidays() มาใช้ generateDutyEvents + getThaiHolidayEvents ──
+import { generateDutyEvents, getThaiHolidayEvents } 
+from "../../utils/scheduleGenerator"
+
+
+
+const calendarOptions: any = reactive({
   plugins: [dayGridPlugin, interactionPlugin],
   initialView: "dayGridMonth",
+  initialDate: `${new Date().getFullYear()}-03-01`, // เปิดที่มีนาคมก่อนเลย
   height: "auto",
 
-  headerToolbar:{
-    left:"prev,next today",
-    center:"title",
-    right:"dayGridMonth,dayGridWeek"
+  headerToolbar: {
+    left:   "prev,next today",
+    center: "title",
+    right:  "dayGridMonth,dayGridWeek",
   },
 
-  events:[
-    {title:'Dr.A1 OPD',date:'2026-03-01',color:"#43a047"},
-    {title:'Dr.B1 Consult',date:'2026-03-02',color:"#1e88e5"},
-    {title:'Dr.C1 OPD',date:'2026-03-03',color:"#43a047"}
-  ],
+  events: [], // จะถูก set ใน onMounted
 
-  eventClick(info:any){
+  eventClick(info: any) {
     alert(
-      "Duty: " + info.event.title +
-      "\nDate: " + info.event.start.toLocaleDateString()
+      "Duty: "  + info.event.title +
+      "\nDate: " + info.event.start.toLocaleDateString("th-TH", {
+        weekday: "long", year: "numeric", month: "long", day: "numeric",
+      }),
     )
-  }
+  },
 })
 
-const loadHoliday = async () => {
+onMounted(async()=>{
 
-  const holidays = await getHolidays()
+const res = await fetch(
+"https://balanced-upliftment-production-c650.up.railway.app/doctors"
+)
 
-  const holidayEvents = holidays.map((h:any)=>({
-    title: h.name,
-    date: h.date.iso,
-    color:"#ef5350"
-  }))
+const doctors = await res.json()
 
-  calendarOptions.events.push(...holidayEvents)
-
+const groups:any={
+A:[],
+B:[],
+C:[],
+D:[]
 }
 
-onMounted(()=>{
-  loadHoliday()
+doctors.forEach((d:any)=>{
+
+if(d.id_group===1) groups.A.push(d.name_doctor)
+if(d.id_group===2) groups.B.push(d.name_doctor)
+if(d.id_group===3) groups.C.push(d.name_doctor)
+if(d.id_group===4) groups.D.push(d.name_doctor)
+
+})
+
+const dutyEvents = generateDutyEvents(groups)
+const holidayEvents = getThaiHolidayEvents()
+
+calendarOptions.events=[...dutyEvents,...holidayEvents]
+
 })
 </script>
 
@@ -63,8 +80,11 @@ onMounted(()=>{
 
     <div class="legend">
       <span class="holiday"></span> Holiday
-      <span class="opd"></span> OPD
-      <span class="consult"></span> Consult
+      <span class="groupA"></span> Group A
+      <span class="groupB"></span> Group B
+      <span class="groupC"></span> Group C
+      <span class="groupD"></span> Group D
+      <span class="friday"></span> Random
     </div>
 
     <div class="calendar-card">
@@ -112,6 +132,7 @@ display:flex;
 gap:20px;
 align-items:center;
 color:#555;
+flex-wrap:wrap;
 }
 
 .legend span{
@@ -122,11 +143,12 @@ border-radius:4px;
 margin-right:6px;
 }
 
-/* medical palette */
-
-.holiday{background:#e53935;}
-.opd{background:#43a047;}
-.consult{background:#1e88e5;}
+.holiday{ background:#e53935; }
+.groupA { background:#43a047; }
+.groupB { background:#1e88e5; }
+.groupC { background:#fb8c00; }
+.groupD { background:#8e24aa; }
+.friday { background:#1ec9f4; }
 
 /* ===== CALENDAR CARD ===== */
 
@@ -145,23 +167,17 @@ box-shadow:0 2px 10px rgba(0,0,0,0.06);
 font-size:14px;
 }
 
-/* TITLE */
-
 :deep(.fc-toolbar-title){
 font-size:20px;
 font-weight:600;
 color:#1976d2;
 }
 
-/* ===== TOOLBAR CONTAINER ===== */
-
 :deep(.fc-button-group){
 background:#f5f7fa;
 border-radius:8px;
 padding:3px;
 }
-
-/* ===== BUTTON ===== */
 
 :deep(.fc-button){
 background:transparent !important;
@@ -173,55 +189,39 @@ font-size:13px;
 transition:all .15s ease;
 }
 
-/* hover */
-
 :deep(.fc-button:hover){
 background:#e3f2fd !important;
 color:#1976d2 !important;
 }
-
-/* active view */
 
 :deep(.fc-button-active){
 background:#1976d2 !important;
 color:white !important;
 }
 
-/* today button */
-
 :deep(.fc-today-button){
 background:#e3f2fd !important;
 color:#1976d2 !important;
 }
-
-/* ===== DAY CELL ===== */
 
 :deep(.fc-daygrid-day){
 height:90px;
 transition:background .15s ease;
 }
 
-/* TODAY */
-
 :deep(.fc-day-today){
 background:#e3f2fd !important;
 }
-
-/* WEEKEND SOFT */
 
 :deep(.fc-day-sat),
 :deep(.fc-day-sun){
 background:#fafcff;
 }
 
-/* HOVER DAY */
-
 :deep(.fc-daygrid-day:hover){
 background:#f5f9ff;
 cursor:pointer;
 }
-
-/* ===== EVENT ===== */
 
 :deep(.fc-event){
 border:none;
@@ -237,22 +237,16 @@ transition:transform .12s ease;
 transform:scale(1.02);
 }
 
-/* ===== GRID BORDER ===== */
-
 :deep(.fc-theme-standard td),
 :deep(.fc-theme-standard th){
 border-color:#eee;
 }
-
-/* ===== ROUND CALENDAR GRID ===== */
 
 :deep(.fc-scrollgrid){
   border-radius:12px;
   overflow:hidden;
   border:1px solid #e3eaf2;
 }
-
-/* ===== DAY HEADER (Sun - Sat) ===== */
 
 :deep(.fc-col-header){
   border-top-left-radius:12px;
@@ -261,14 +255,12 @@ border-color:#eee;
 }
 
 :deep(.fc-col-header-cell){
-  background:#e3f2fd;     /* ฟ้าอ่อนเหมือนหน้าอื่น */
-  color:#1976d2;          /* ฟ้าหลัก */
+  background:#e3f2fd;
+  color:#1976d2;
   font-weight:600;
   padding:12px 0;
   border-color:#d6e4f0 !important;
 }
-
-/* ===== TABLE FIX (กันมุมแหลม) ===== */
 
 :deep(.fc-theme-standard table){
   border-collapse:separate;

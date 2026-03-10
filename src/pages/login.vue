@@ -9,7 +9,6 @@ const password = ref("")
 const error = ref("")
 const loading = ref(false)
 
-
 const login = async () => {
 
   error.value = ""
@@ -17,30 +16,42 @@ const login = async () => {
 
   try{
 
-    const res = await fetch("https://balanced-upliftment-production-c650.up.railway.app/login",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({
-        email:email.value,
-        password:password.value
-      })
-    })
+    const res = await fetch(
+      "https://balanced-upliftment-production-c650.up.railway.app/login",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+          email:email.value,
+          password:password.value
+        })
+      }
+    )
 
     const data = await res.json()
 
+    // login fail
     if(!res.ok){
-      error.value="Email or password incorrect"
-      loading.value=false
+      error.value = data.message || "Email or password incorrect"
+      loading.value = false
       return
     }
 
-     sessionStorage.clear() 
+    // clear session
+    sessionStorage.clear()
 
+    // save role + user
     sessionStorage.setItem("role",data.role)
     sessionStorage.setItem("user",JSON.stringify(data.user))
 
+    // save doctor id
+    if(data.role==="doctor"){
+      sessionStorage.setItem("doctorId",data.user.id_doctor)
+    }
+
+    // redirect
     if(data.role==="admin"){
       router.push("/admin/dashboard")
     }else{
@@ -48,10 +59,10 @@ const login = async () => {
     }
 
   }catch(err){
-    error.value="Server error"
+    error.value = "Server error"
   }
 
-  loading.value=false
+  loading.value = false
 }
 </script>
 
@@ -61,12 +72,10 @@ const login = async () => {
 
   <div class="login-card">
 
-    <div class="logo">
-      🏥
-    </div>
+    <div class="logo">🏥</div>
 
     <h1>Hospital System</h1>
-    <p class="subtitle">Login in to continue</p>
+    <p class="subtitle">Login to continue</p>
 
     <input
       v-model="email"
@@ -77,6 +86,7 @@ const login = async () => {
       v-model="password"
       type="password"
       placeholder="Password"
+      @keyup.enter="login"
     />
 
     <p class="error" v-if="error">
@@ -95,18 +105,13 @@ const login = async () => {
 
 <style scoped>
 
-/* PAGE */
-
 .login-page{
 height:100vh;
 display:flex;
 align-items:center;
 justify-content:center;
 background:linear-gradient(135deg,#f4f6f8,#e3f2fd);
-
 }
-
-/* CARD */
 
 .login-card{
 width:360px;
@@ -117,14 +122,10 @@ box-shadow:0 8px 24px rgba(0,0,0,0.08);
 text-align:center;
 }
 
-/* LOGO */
-
 .logo{
 font-size:40px;
 margin-bottom:10px;
 }
-
-/* TITLE */
 
 h1{
 font-size:22px;
@@ -137,8 +138,6 @@ font-size:14px;
 color:#777;
 margin-bottom:25px;
 }
-
-/* INPUT */
 
 input{
 width:100%;
@@ -155,8 +154,6 @@ input:focus{
 border-color:#1976d2;
 box-shadow:0 0 0 3px rgba(25,118,210,0.15);
 }
-
-/* BUTTON */
 
 button{
 width:100%;
@@ -179,8 +176,6 @@ button:disabled{
 background:#90caf9;
 cursor:not-allowed;
 }
-
-/* ERROR */
 
 .error{
 color:#e53935;

@@ -1,5 +1,14 @@
 <script setup lang="ts">
-const role = localStorage.getItem("role")
+import { useRouter } from "vue-router"
+
+const router = useRouter()
+
+const role = sessionStorage.getItem("role")
+
+const logout = () => {
+  sessionStorage.clear()
+  router.push("/")
+}
 </script>
 
 <template>
@@ -20,6 +29,11 @@ const role = localStorage.getItem("role")
   
 
 </nav>
+
+
+    <button class="logout" @click="logout">
+Logout
+</button>
 
 </div>
 </div>
@@ -78,6 +92,36 @@ color:#1976d2;
 .router-link-active{
 background:#1976d2;
 color:white;
+}
+
+/* logout button */
+
+.logout{
+margin-top:20px;
+padding:10px 12px;
+border:none;
+border-radius:8px;
+background:#f5f7fa;
+color:#555;
+cursor:pointer;
+font-size:14px;
+transition:all .2s ease;
+width:100%;
+}
+
+/* hover */
+
+.logout:hover{
+background:#449bc4;
+color:white;
+transform:translateX(4px);
+box-shadow:0 3px 8px rgba(229,57,53,0.25);
+}
+
+/* click */
+
+.logout:active{
+transform:scale(0.96);
 }
 
 </style>

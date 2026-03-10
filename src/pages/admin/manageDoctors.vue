@@ -13,22 +13,7 @@ id_group:number
 name_group:string
 }
 
-interface Group{
-id_group:number
-name_group:string
-}
-
 const doctors = ref<Doctor[]>([])
-const groups = ref<Group[]>([])
-
-const newDoctor = ref({
-name_doctor:"",
-email:"",
-phone:"",
-password:"",
-id_group:1
-})
-
 const editingDoctor = ref<any>(null)
 
 
@@ -40,55 +25,9 @@ doctors.value = await res.json()
 
 }
 
-
-// FETCH GROUPS
-const fetchGroups = async ()=>{
-
-const res = await fetch("https://balanced-upliftment-production-c650.up.railway.app/groups")
-groups.value = await res.json()
-
-}
-
 onMounted(()=>{
 fetchDoctors()
-fetchGroups()
 })
-
-
-// ADD
-const addDoctor = async ()=>{
-
-await fetch("https://balanced-upliftment-production-c650.up.railway.app/doctors",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify(newDoctor.value)
-})
-
-fetchDoctors()
-
-newDoctor.value={
-name_doctor:"",
-email:"",
-phone:"",
-password:"",
-id_group:1
-}
-
-}
-
-
-// DELETE
-const deleteDoctor = async(id:number)=>{
-
-await fetch(`https://balanced-upliftment-production-c650.up.railway.app/doctors/${id}`,{
-method:"DELETE"
-})
-
-fetchDoctors()
-
-}
 
 
 // EDIT
@@ -107,7 +46,6 @@ body:JSON.stringify(editingDoctor.value)
 })
 
 editingDoctor.value=null
-
 fetchDoctors()
 
 }
@@ -123,34 +61,6 @@ fetchDoctors()
 <div class="content">
 
 <h1>Manage Doctors</h1>
-
-<div class="form">
-
-<input v-model="newDoctor.name_doctor" placeholder="Name">
-<input v-model="newDoctor.email" placeholder="Email">
-<input v-model="newDoctor.phone" placeholder="Phone">
-<input v-model="newDoctor.password" placeholder="Password">
-
-<select v-model.number="newDoctor.id_group">
-
-<option
-v-for="group in groups"
-:key="group.id_group"
-:value="group.id_group">
-
-{{ group.name_group }}
-
-</option>
-
-</select>
-
-<button @click="addDoctor">
-Add Doctor
-</button>
-
-
-</div>
-
 
 <table>
 
@@ -208,12 +118,6 @@ class="save"
 v-else
 @click="updateDoctor">
 Save
-</button>
-
-<button
-class="delete"
-@click="deleteDoctor(doctor.id_doctor)">
-Delete
 </button>
 
 </td>
