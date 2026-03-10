@@ -4,7 +4,6 @@ import Dashboard from "../pages/admin/dashboard.vue"
 import Doctors from "../pages/admin/doctors.vue"
 import Groups from "../pages/admin/groups.vue"
 import ManageDoctors from "../pages/admin/manageDoctors.vue"
-import ManageGroups from "../pages/admin/manageGroups.vue"
 import Login from "../pages/login.vue"
 import Homepage from "../pages/doctor/homepage.vue"
 import MySchedule from "../pages/doctor/mySchedule.vue"
@@ -32,11 +31,6 @@ component:Groups
 {
 path:"/admin/manage-doctors",
 component:ManageDoctors
-},
-
-{
-path:"/admin/manage-groups",
-component:ManageGroups
 },
 
 {
@@ -74,20 +68,33 @@ routes
 
 router.beforeEach((to, _, next) => {
 
-  const role = localStorage.getItem("role")
+  const role = sessionStorage.getItem("role")
 
   // ยังไม่ login
-  if(!role && to.path !== "/"){
+  if (!role && to.path !== "/") {
     return next("/")
   }
 
+  // login แล้วแต่เปิด login page
+  if (role && to.path === "/") {
+
+    if (role === "admin") {
+      return next("/admin/dashboard")
+    }
+
+    if (role === "doctor") {
+      return next("/doctor/homepage")
+    }
+
+  }
+
   // doctor ห้ามเข้า admin
-  if(role === "doctor" && to.path.startsWith("/admin")){
+  if (role === "doctor" && to.path.startsWith("/admin")) {
     return next("/doctor/homepage")
   }
 
   // admin ห้ามเข้า doctor
-  if(role === "admin" && to.path.startsWith("/doctor")){
+  if (role === "admin" && to.path.startsWith("/doctor")) {
     return next("/admin/dashboard")
   }
 

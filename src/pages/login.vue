@@ -36,10 +36,10 @@ const login = async () => {
       return
     }
 
-     localStorage.clear() 
-     
-    localStorage.setItem("role",data.role)
-    localStorage.setItem("user",JSON.stringify(data.user))
+     sessionStorage.clear() 
+
+    sessionStorage.setItem("role",data.role)
+    sessionStorage.setItem("user",JSON.stringify(data.user))
 
     if(data.role==="admin"){
       router.push("/admin/dashboard")

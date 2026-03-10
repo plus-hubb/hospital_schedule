@@ -17,7 +17,7 @@ const role = localStorage.getItem("role")
 
   <p class="menu-title">Groups</p>
   <router-link to="/admin/groups">Group List</router-link>
-  <router-link to="/admin/manage-groups">Manage Groups</router-link>
+  
 
 </nav>
 
