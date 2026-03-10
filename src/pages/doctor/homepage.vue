@@ -1,21 +1,41 @@
 <script setup lang="ts">
-import { reactive, onMounted } from "vue"
+import { reactive, onMounted, ref } from "vue"
 import FullCalendar from "@fullcalendar/vue3"
 import dayGridPlugin from "@fullcalendar/daygrid"
 import interactionPlugin from "@fullcalendar/interaction"
 
 import NavbarDoc from "../../components/NavbarDoc.vue"
 
-// ── เปลี่ยนจาก getHolidays() มาใช้ generateDutyEvents + getThaiHolidayEvents ──
 import { generateDutyEvents, getThaiHolidayEvents } 
 from "../../utils/scheduleGenerator"
 
+// ⭐ user ที่ login
+const user = JSON.parse(sessionStorage.getItem("user") || "{}")
 
+// ⭐ toast popup
+const toast = ref({
+  show:false,
+  title:"",
+  message:""
+})
+
+function showToast(title:string,message:string){
+  toast.value = {
+    show:true,
+    title,
+    message
+  }
+
+  setTimeout(()=>{
+    toast.value.show=false
+  },4000)
+}
 
 const calendarOptions: any = reactive({
   plugins: [dayGridPlugin, interactionPlugin],
   initialView: "dayGridMonth",
-  initialDate: `${new Date().getFullYear()}-03-01`, // เปิดที่มีนาคมก่อนเลย
+  initialDate: new Date(),
+  timeZone: "Asia/Bangkok",
   height: "auto",
 
   headerToolbar: {
@@ -24,14 +44,18 @@ const calendarOptions: any = reactive({
     right:  "dayGridMonth,dayGridWeek",
   },
 
-  events: [], // จะถูก set ใน onMounted
+  events: [],
 
   eventClick(info: any) {
-    alert(
-      "Duty: "  + info.event.title +
-      "\nDate: " + info.event.start.toLocaleDateString("th-TH", {
-        weekday: "long", year: "numeric", month: "long", day: "numeric",
-      }),
+    showToast(
+      "Duty Detail",
+      `${info.event.title} - ` +
+      info.event.start.toLocaleDateString("th-TH",{
+        weekday:"long",
+        year:"numeric",
+        month:"long",
+        day:"numeric"
+      })
     )
   },
 })
@@ -63,7 +87,43 @@ if(d.id_group===4) groups.D.push(d.name_doctor)
 const dutyEvents = generateDutyEvents(groups)
 const holidayEvents = getThaiHolidayEvents()
 
+// ⭐ highlight เวรของหมอที่ login
+dutyEvents.forEach((e:any)=>{
+if(e.title.includes(user.name_doctor)){
+e.backgroundColor="#ff1744"
+e.borderColor="#ff1744"
+}
+})
+
+// set events
 calendarOptions.events=[...dutyEvents,...holidayEvents]
+
+// ⭐ เก็บ duty events ไว้ใช้กับ notification
+localStorage.setItem("dutyEvents",JSON.stringify(dutyEvents))
+
+// ⭐ popup แจ้งเตือน
+const today = new Date().toLocaleDateString("sv-SE")
+const tomorrow = new Date(Date.now() + 86400000).toLocaleDateString("sv-SE")
+
+dutyEvents.forEach((e:any)=>{
+
+if(e.title.includes(user.name_doctor)){
+
+if(e.date === today){
+setTimeout(()=>{
+showToast("🔔 Duty Today",e.title)
+},500)
+}
+
+if(e.date === tomorrow){
+setTimeout(()=>{
+showToast("⚠️ Duty Tomorrow",e.title)
+},900)
+}
+
+}
+
+})
 
 })
 </script>
@@ -93,6 +153,20 @@ calendarOptions.events=[...dutyEvents,...holidayEvents]
 
   </div>
 
+<!-- ⭐ TOAST POPUP -->
+<div v-if="toast.show" class="toast">
+
+<div class="toast-icon">
+🔔
+</div>
+
+<div class="toast-text">
+<b>{{ toast.title }}</b>
+<p>{{ toast.message }}</p>
+</div>
+
+</div>
+
 </div>
 
 </template>
@@ -114,16 +188,12 @@ flex-direction:column;
 align-items:center;
 }
 
-/* ===== TITLE ===== */
-
 h1{
 margin-bottom:14px;
 color:#1976d2;
 font-weight:600;
 letter-spacing:.3px;
 }
-
-/* ===== LEGEND ===== */
 
 .legend{
 margin-bottom:20px;
@@ -150,8 +220,6 @@ margin-right:6px;
 .groupD { background:#8e24aa; }
 .friday { background:#1ec9f4; }
 
-/* ===== CALENDAR CARD ===== */
-
 .calendar-card{
 width:100%;
 max-width:950px;
@@ -160,8 +228,6 @@ padding:22px;
 border-radius:12px;
 box-shadow:0 2px 10px rgba(0,0,0,0.06);
 }
-
-/* ===== FULLCALENDAR ===== */
 
 :deep(.fc){
 font-size:14px;
@@ -243,27 +309,76 @@ border-color:#eee;
 }
 
 :deep(.fc-scrollgrid){
-  border-radius:12px;
-  overflow:hidden;
-  border:1px solid #e3eaf2;
+border-radius:12px;
+overflow:hidden;
+border:1px solid #e3eaf2;
 }
 
 :deep(.fc-col-header){
-  border-top-left-radius:12px;
-  border-top-right-radius:12px;
-  overflow:hidden;
+border-top-left-radius:12px;
+border-top-right-radius:12px;
+overflow:hidden;
 }
 
 :deep(.fc-col-header-cell){
-  background:#e3f2fd;
-  color:#1976d2;
-  font-weight:600;
-  padding:12px 0;
-  border-color:#d6e4f0 !important;
+background:#e3f2fd;
+color:#1976d2;
+font-weight:600;
+padding:12px 0;
+border-color:#d6e4f0 !important;
 }
 
 :deep(.fc-theme-standard table){
-  border-collapse:separate;
-  border-spacing:0;
+border-collapse:separate;
+border-spacing:0;
 }
+
+/* ⭐ TOAST STYLE */
+
+.toast{
+position:fixed;
+top:20px;
+right:20px;
+
+background:white;
+padding:16px 18px;
+border-radius:12px;
+
+box-shadow:0 8px 24px rgba(0,0,0,0.18);
+
+display:flex;
+align-items:center;
+gap:12px;
+
+animation:slideIn .35s ease;
+
+z-index:999;
+}
+
+.toast-icon{
+font-size:22px;
+}
+
+.toast-text b{
+font-size:14px;
+color:#1976d2;
+}
+
+.toast-text p{
+margin:0;
+font-size:13px;
+color:#555;
+}
+
+@keyframes slideIn{
+from{
+opacity:0;
+transform:translateX(40px);
+}
+to{
+opacity:1;
+transform:translateX(0);
+}
+}
+
 </style>
