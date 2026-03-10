@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const role = localStorage.getItem("role")
 </script>
 
 <template>
@@ -6,6 +7,7 @@
 
 <h2 class="logo">Hospital</h2>
 
+<div v-if="role === 'admin'">
 <nav>
   <router-link to="/admin/dashboard">Dashboard</router-link>
 
@@ -19,6 +21,7 @@
 
 </nav>
 
+</div>
 </div>
 </template>
 
