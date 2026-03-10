@@ -69,6 +69,30 @@ res.json(result)
 })
 
 
+// =====================
+// ADD DOCTOR
+// =====================
+
+app.post("/doctors",(req,res)=>{
+
+const {name_doctor,email,phone,password,id_group}=req.body
+
+const sql=`
+INSERT INTO doctors (name_doctor,email,phone,password,id_group)
+VALUES (?,?,?,?,?)
+`
+
+db.query(sql,
+[name_doctor,email,phone,password,id_group],
+(err,result)=>{
+
+if(err) return res.status(500).json(err)
+
+res.json({message:"Doctor added"})
+
+})
+
+})
 
 
 
@@ -98,7 +122,26 @@ res.json({message:"Doctor updated"})
 
 })
 
+// =====================
+// DELETE DOCTOR
+// =====================
 
+app.delete("/doctors/:id",(req,res)=>{
+
+const sql=`
+DELETE FROM doctors
+WHERE id_doctor=?
+`
+
+db.query(sql,[req.params.id],(err)=>{
+
+if(err) return res.status(500).json(err)
+
+res.json({message:"Doctor deleted"})
+
+})
+
+})
 
 
 
