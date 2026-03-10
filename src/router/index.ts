@@ -72,21 +72,26 @@ history:createWebHashHistory(),
 routes
 })
 
-router.beforeEach((to,_,next)=>{
+router.beforeEach((to, _, next) => {
 
-const role = localStorage.getItem("role")
+  const role = localStorage.getItem("role")
 
-if(to.path.startsWith("/admin") && role!=="admin"){
+  // ยังไม่ login
+  if(!role && to.path !== "/"){
+    return next("/")
+  }
 
-return next("/")
+  // doctor ห้ามเข้า admin
+  if(role === "doctor" && to.path.startsWith("/admin")){
+    return next("/doctor/homepage")
+  }
 
-}
+  // admin ห้ามเข้า doctor
+  if(role === "admin" && to.path.startsWith("/doctor")){
+    return next("/admin/dashboard")
+  }
 
-if(to.path.startsWith("/doctor") && role!=="doctor"){
-return next("/")
-}
-
-next()
+  next()
 
 })
 

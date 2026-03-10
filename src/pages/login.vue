@@ -36,6 +36,8 @@ const login = async () => {
       return
     }
 
+     localStorage.clear() 
+     
     localStorage.setItem("role",data.role)
     localStorage.setItem("user",JSON.stringify(data.user))
 
