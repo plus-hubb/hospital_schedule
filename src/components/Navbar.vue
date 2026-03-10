@@ -47,7 +47,7 @@ height:100vh;
 background:#ffffff;
 border-right:1px solid #eee;
 padding:20px;
-font-family: Arial, Helvetica, sans-serif
+font-family:'Outfit', sans-serif;
 }
 
 .logo{
@@ -107,6 +107,7 @@ cursor:pointer;
 font-size:14px;
 transition:all .2s ease;
 width:100%;
+font-family:'Outfit', sans-serif;
 }
 
 /* hover */
