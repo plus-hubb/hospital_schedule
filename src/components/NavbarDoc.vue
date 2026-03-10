@@ -12,7 +12,7 @@ const role = localStorage.getItem("role")
 <nav>
   <router-link to="/doctor/homepage">Homepage</router-link>
   <router-link to="/doctor/mySchedule">My schedule</router-link>
-  <router-link to="/doctor/notifications">Notifications 🔔</router-link>
+  <router-link to="/doctor/notification">Notifications 🔔</router-link>
 
 
 </nav>
