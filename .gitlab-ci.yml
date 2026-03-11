@@ -1,19 +1,10 @@
 stages:
   - build
-  - deploy
 
 build_job:
   stage: build
   image: node:20
   script:
     - node -v
-    - npm ci
+    - npm install
     - npm run build
-  artifacts:
-    paths:
-      - dist/
-
-deploy_job:
-  stage: deploy
-  script:
-    - echo "Deploy Success"
