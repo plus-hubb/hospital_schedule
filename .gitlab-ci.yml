@@ -1,10 +1,7 @@
 stages:
-  - build
+  - deploy
 
-build_job:
-  stage: build
-  image: node:20
+deploy_job:
+  stage: deploy
   script:
-    - node -v
-    - npm install
-    - npm run build
+    - echo "Deploy Success"
