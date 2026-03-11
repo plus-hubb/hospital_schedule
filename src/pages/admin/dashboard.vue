@@ -234,11 +234,11 @@ onMounted(async()=>{
 
 <div class="controls">
 
-<button @click="generateMonth">
+<button class="btn btn-gen" @click="generateMonth">
 Generate Month
 </button>
 
-<button @click="undoMonth">
+<button class="btn btn-undo" @click="undoMonth">
 Undo Month
 </button>
 
@@ -261,7 +261,6 @@ Undo Month
 <FullCalendar 
   :options="calendarOptions"
 />
-
 </div>
 
 </div>
@@ -289,40 +288,72 @@ flex-direction:column;
 align-items:center;
 }
 
+/* ===== TITLE ===== */
+
 h1{
 margin-bottom:14px;
 color:#1976d2;
 font-weight:600;
+letter-spacing:.3px;
 }
 
-/* BUTTONS */
+/* ===== CONTROLS ===== */
 
 .controls{
-margin-bottom:20px;
 display:flex;
 gap:10px;
+margin-bottom:16px;
 }
 
-button{
+/* base button */
+
+.btn{
+border:none;
+border-radius:8px;
+padding:8px 16px;
+font-size:13px;
+font-weight:500;
+cursor:pointer;
+transition:all .15s ease;
+box-shadow:0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* generate */
+
+.btn-gen{
 background:#1976d2;
 color:white;
-border:none;
-padding:8px 14px;
-border-radius:6px;
-cursor:pointer;
 }
 
-button:hover{
+.btn-gen:hover{
 background:#1565c0;
+transform:translateY(-1px);
+box-shadow:0 3px 8px rgba(0,0,0,0.12);
 }
 
-/* LEGEND */
+/* undo */
+
+.btn-undo{
+background:#f5f7fa;
+color:#555;
+border:1px solid #e3eaf2;
+}
+
+.btn-undo:hover{
+background:#e3f2fd;
+color:#1976d2;
+transform:translateY(-1px);
+}
+
+/* ===== LEGEND ===== */
 
 .legend{
 margin-bottom:20px;
 font-size:14px;
 display:flex;
-gap:18px;
+gap:20px;
+align-items:center;
+color:#555;
 flex-wrap:wrap;
 }
 
@@ -335,30 +366,83 @@ margin-right:6px;
 }
 
 .holiday{ background:#e53935; }
-.groupA{ background:#43a047; }
-.groupB{ background:#1e88e5; }
-.groupC{ background:#fb8c00; }
-.groupD{ background:#8e24aa; }
-.friday{ background:#1ec9f4; }
+.groupA { background:#43a047; }
+.groupB { background:#1e88e5; }
+.groupC { background:#fb8c00; }
+.groupD { background:#8e24aa; }
+.friday { background:#1ec9f4; }
 
-
-/* CALENDAR */
+/* ===== CALENDAR CARD ===== */
 
 .calendar-card{
 width:100%;
 max-width:950px;
 background:white;
-padding:20px;
+padding:22px;
 border-radius:12px;
 box-shadow:0 2px 10px rgba(0,0,0,0.06);
 }
 
+/* ===== FULLCALENDAR ===== */
+
+:deep(.fc){
+font-size:14px;
+}
+
+:deep(.fc-toolbar-title){
+font-size:20px;
+font-weight:600;
+color:#1976d2;
+}
+
+:deep(.fc-button-group){
+background:#f5f7fa;
+border-radius:8px;
+padding:3px;
+}
+
+:deep(.fc-button){
+background:transparent !important;
+border:none !important;
+color:#555 !important;
+border-radius:6px !important;
+padding:6px 12px !important;
+font-size:13px;
+transition:all .15s ease;
+}
+
+:deep(.fc-button:hover){
+background:#e3f2fd !important;
+color:#1976d2 !important;
+}
+
+:deep(.fc-button-active){
+background:#1976d2 !important;
+color:white !important;
+}
+
+:deep(.fc-today-button){
+background:#e3f2fd !important;
+color:#1976d2 !important;
+}
+
 :deep(.fc-daygrid-day){
 height:90px;
+transition:background .15s ease;
 }
 
 :deep(.fc-day-today){
 background:#e3f2fd !important;
+}
+
+:deep(.fc-day-sat),
+:deep(.fc-day-sun){
+background:#fafcff;
+}
+
+:deep(.fc-daygrid-day:hover){
+background:#f5f9ff;
+cursor:pointer;
 }
 
 :deep(.fc-event){
@@ -366,6 +450,43 @@ border:none;
 border-radius:6px;
 padding:3px 6px;
 font-size:12px;
+font-weight:500;
+box-shadow:0 1px 2px rgba(0,0,0,0.08);
+transition:transform .12s ease;
+}
+
+:deep(.fc-event:hover){
+transform:scale(1.02);
+}
+
+:deep(.fc-theme-standard td),
+:deep(.fc-theme-standard th){
+border-color:#eee;
+}
+
+:deep(.fc-scrollgrid){
+border-radius:12px;
+overflow:hidden;
+border:1px solid #e3eaf2;
+}
+
+:deep(.fc-col-header){
+border-top-left-radius:12px;
+border-top-right-radius:12px;
+overflow:hidden;
+}
+
+:deep(.fc-col-header-cell){
+background:#e3f2fd;
+color:#1976d2;
+font-weight:600;
+padding:12px 0;
+border-color:#d6e4f0 !important;
+}
+
+:deep(.fc-theme-standard table){
+border-collapse:separate;
+border-spacing:0;
 }
 
 </style>
