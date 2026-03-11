@@ -32,7 +32,10 @@ onMounted(async () => {
 
   })
 
-  const events = generateDutyEvents(groups)
+  const year = new Date().getFullYear()
+
+const dutyEvents = generateDutyEvents(groups, year)
+
 
   const today = new Date()
   const tomorrow = new Date()
@@ -42,7 +45,7 @@ onMounted(async () => {
   const todayStr = today.toLocaleDateString("sv-SE")
   const tomorrowStr = tomorrow.toLocaleDateString("sv-SE")
 
-  events.forEach((e:any)=>{
+  dutyEvents.forEach((e:any)=>{
 
     // กันกรณี event มีเวลา
     const eventDate = e.date?.slice(0,10)
