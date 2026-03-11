@@ -1,61 +1,6 @@
 /**
  * scheduleGenerator.ts
- *
- * Pattern:
- *   จันทร์  → A[i] OPD  (บน)  +  B[i] Consult (ล่าง)
- *   อังคาร  → B[i] OPD         +  C[i] Consult
- *   พุธ     → C[i] OPD         +  D[i] Consult
- *   พฤหัส  → D[i] OPD         +  A[i] Consult
- *   ศุกร์   → 2 คน (pair วน A+B / B+C / C+D / D+A)
- *
- *   i = weekIndex
- *   rotation จะใช้ weekIndex % จำนวนคนใน group
  */
-
-// ─── Thai Holidays Dynamic ─────────────────────────
-
-function getThaiHolidays(year:number):Record<string,string>{
-
-return{
-
-[`${year}-01-01`]:"วันขึ้นปีใหม่",
-[`${year}-01-02`]:"ชดเชยวันขึ้นปีใหม่",
-
-[`${year}-02-13`]:"วันมาฆบูชา",
-[`${year}-03-02`]:"ชดเชยวันมาฆบูชา",
-
-[`${year}-04-06`]:"วันจักรี",
-
-[`${year}-04-13`]:"วันสงกรานต์",
-[`${year}-04-14`]:"วันสงกรานต์",
-[`${year}-04-15`]:"วันสงกรานต์",
-
-[`${year}-05-01`]:"วันแรงงานแห่งชาติ",
-[`${year}-05-04`]:"วันฉัตรมงคล",
-[`${year}-05-11`]:"วันวิสาขบูชา",
-[`${year}-05-13`]:"วันพืชมงคล",
-
-[`${year}-06-03`]:"วันเฉลิมพระชนมพรรษา สมเด็จพระราชินี",
-
-[`${year}-07-09`]:"วันอาสาฬหบูชา",
-[`${year}-07-10`]:"วันเข้าพรรษา",
-
-[`${year}-07-28`]:"วันเฉลิมพระชนมพรรษา ร.10",
-
-[`${year}-08-12`]:"วันแม่แห่งชาติ",
-
-[`${year}-10-13`]:"วันสวรรคต ร.9",
-[`${year}-10-23`]:"วันปิยมหาราช",
-
-[`${year}-12-05`]:"วันพ่อแห่งชาติ",
-[`${year}-12-10`]:"วันรัฐธรรมนูญ",
-[`${year}-12-31`]:"วันสิ้นปี",
-
-}
-
-}
-
-// ─── Colors ─────────────────────────────────────────
 
 const GROUP_COLOR:Record<string,string>={
 A:"#43a047",
@@ -66,81 +11,59 @@ D:"#8e24aa",
 
 const FRIDAY_COLOR="#1ec9f4"
 
-// ─── Helpers ────────────────────────────────────────
-
-function toIso(d:Date):string{
-
+function toIso(d:Date){
 const y=d.getFullYear()
 const m=String(d.getMonth()+1).padStart(2,"0")
 const dd=String(d.getDate()).padStart(2,"0")
-
 return `${y}-${m}-${dd}`
-
 }
 
-function getMondayOf(d:Date):Date{
-
+function getMondayOf(d:Date){
 const day=d.getDay()
 const diff=day===0?-6:1-day
-
 const mon=new Date(d)
-
 mon.setDate(d.getDate()+diff)
 mon.setHours(0,0,0,0)
-
 return mon
-
 }
 
-function getWeekIndex(date:Date,anchorMonday:Date):number{
-
+function getWeekIndex(date:Date,anchorMonday:Date){
 const mon=getMondayOf(date)
-
 const diffMs=mon.getTime()-anchorMonday.getTime()
-
 return Math.floor(diffMs/(7*24*60*60*1000))
-
 }
 
-function pick(group:string[],weekIndex:number):string{
-
-if(!group||group.length===0) return "N/A"
-
+function pick(group:any[],weekIndex:number){
+if(!group||group.length===0) return null
 return group[weekIndex%group.length]
-
 }
-
-// ─── Main ───────────────────────────────────────────
 
 export function generateDutyEvents(
 DOCTORS:any,
-year:number
-):Array<{title:string,date:string,color:string}>{
+year:number,
+month:number
+){
 
-const events:Array<{title:string,date:string,color:string}>=[]
+const events:any[]=[]
 
-const THAI_HOLIDAYS=getThaiHolidays(year)
-
-function isWorkday(d:Date):boolean{
+function isWorkday(d:Date){
 
 const dow=d.getDay()
 
 if(dow===0||dow===6) return false
 
-if(toIso(d) in THAI_HOLIDAYS) return false
-
 return true
-
 }
 
 const anchor=new Date(year,0,3)
 const anchorMon=getMondayOf(anchor)
 
-const endDate=new Date(year,11,31)
+const start=new Date(year,month,1)
+const end=new Date(year,month+1,0)
 
-const cur=new Date(anchor)
+const cur=new Date(start)
 
-while(cur<=endDate){
+while(cur<=end){
 
 if(isWorkday(cur)){
 
@@ -150,92 +73,133 @@ const wi=getWeekIndex(cur,anchorMon)
 
 if(dow===1){
 
+const d1=pick(DOCTORS.A,wi)
+const d2=pick(DOCTORS.B,wi)
+
 events.push({
-title:`${pick(DOCTORS.A,wi)} OPD`,
+title:`${d1.name_doctor} OPD`,
 date:iso,
-color:GROUP_COLOR.A
+color:GROUP_COLOR.A,
+id_doctor:d1.id_doctor,
+id_group:1,
+duty_type:"OPD"
 })
 
 events.push({
-title:`${pick(DOCTORS.B,wi)} Consult`,
+title:`${d2.name_doctor} Consult`,
 date:iso,
-color:GROUP_COLOR.B
+color:GROUP_COLOR.B,
+id_doctor:d2.id_doctor,
+id_group:2,
+duty_type:"Consult"
 })
 
 }
 
 else if(dow===2){
 
+const d1=pick(DOCTORS.B,wi)
+const d2=pick(DOCTORS.C,wi)
+
 events.push({
-title:`${pick(DOCTORS.B,wi)} OPD`,
+title:`${d1.name_doctor} OPD`,
 date:iso,
-color:GROUP_COLOR.B
+color:GROUP_COLOR.B,
+id_doctor:d1.id_doctor,
+id_group:2,
+duty_type:"OPD"
 })
 
 events.push({
-title:`${pick(DOCTORS.C,wi)} Consult`,
+title:`${d2.name_doctor} Consult`,
 date:iso,
-color:GROUP_COLOR.C
+color:GROUP_COLOR.C,
+id_doctor:d2.id_doctor,
+id_group:3,
+duty_type:"Consult"
 })
 
 }
 
 else if(dow===3){
 
+const d1=pick(DOCTORS.C,wi)
+const d2=pick(DOCTORS.D,wi)
+
 events.push({
-title:`${pick(DOCTORS.C,wi)} OPD`,
+title:`${d1.name_doctor} OPD`,
 date:iso,
-color:GROUP_COLOR.C
+color:GROUP_COLOR.C,
+id_doctor:d1.id_doctor,
+id_group:3,
+duty_type:"OPD"
 })
 
 events.push({
-title:`${pick(DOCTORS.D,wi)} Consult`,
+title:`${d2.name_doctor} Consult`,
 date:iso,
-color:GROUP_COLOR.D
+color:GROUP_COLOR.D,
+id_doctor:d2.id_doctor,
+id_group:4,
+duty_type:"Consult"
 })
 
 }
 
 else if(dow===4){
 
+const d1=pick(DOCTORS.D,wi)
+const d2=pick(DOCTORS.A,wi)
+
 events.push({
-title:`${pick(DOCTORS.D,wi)} OPD`,
+title:`${d1.name_doctor} OPD`,
 date:iso,
-color:GROUP_COLOR.D
+color:GROUP_COLOR.D,
+id_doctor:d1.id_doctor,
+id_group:4,
+duty_type:"OPD"
 })
 
 events.push({
-title:`${pick(DOCTORS.A,wi)} Consult`,
+title:`${d2.name_doctor} Consult`,
 date:iso,
-color:GROUP_COLOR.A
+color:GROUP_COLOR.A,
+id_doctor:d2.id_doctor,
+id_group:1,
+duty_type:"Consult"
 })
 
 }
 
 else if(dow===5){
 
-const fridayPairs:[string,string][]=[
+const fridayPairs:[string,string][] = [
 ["A","B"],
 ["B","C"],
 ["C","D"],
 ["D","A"]
 ]
-
-const pair=fridayPairs[wi%fridayPairs.length]!
+const pair = fridayPairs[wi % fridayPairs.length]!
 
 const d1=pick(DOCTORS[pair[0]],wi)
 const d2=pick(DOCTORS[pair[1]],wi)
 
 events.push({
-title:`${d1} OPD`,
+title:`${d1.name_doctor} OPD`,
 date:iso,
-color:FRIDAY_COLOR
+color:FRIDAY_COLOR,
+id_doctor:d1.id_doctor,
+id_group:d1.id_group,
+duty_type:"OPD"
 })
 
 events.push({
-title:`${d2} Consult`,
+title:`${d2.name_doctor} Consult`,
 date:iso,
-color:FRIDAY_COLOR
+color:FRIDAY_COLOR,
+id_doctor:d2.id_doctor,
+id_group:d2.id_group,
+duty_type:"Consult"
 })
 
 }
@@ -250,20 +214,46 @@ return events
 
 }
 
-// ─── Holiday events ─────────────────────────────────
+export function getThaiHolidayEvents(year:number){
 
-export function getThaiHolidayEvents(
-year:number
-):Array<{title:string,date:string,color:string}>{
+return [
 
-const holidays=getThaiHolidays(year)
+{
+title:"New Year",
+date:`${year}-01-01`,
+color:"#e53935"
+},
 
-return Object.entries(holidays).map(([date,name])=>({
+{
+title:"Labour Day",
+date:`${year}-05-01`,
+color:"#e53935"
+},
 
-title:name,
-date,
-color:"#ef5350"
+{
+title:"King Birthday",
+date:`${year}-07-28`,
+color:"#e53935"
+},
 
-}))
+{
+title:"Mother Day",
+date:`${year}-08-12`,
+color:"#e53935"
+},
+
+{
+title:"Father Day",
+date:`${year}-12-05`,
+color:"#e53935"
+},
+
+{
+title:"New Year's Eve",
+date:`${year}-12-31`,
+color:"#e53935"
+}
+
+]
 
 }

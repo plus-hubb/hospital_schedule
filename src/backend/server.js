@@ -144,6 +144,96 @@ res.json({message:"Doctor deleted"})
 })
 
 
+// =====================
+// SAVE SCHEDULE
+// =====================
+
+app.post("/schedule",(req,res)=>{
+
+const schedules = req.body
+
+const values = schedules.map(s=>[
+s.id_doctor,
+s.id_group,
+s.date,
+s.duty_type
+])
+
+const sql = `
+INSERT INTO schedule
+(id_doctor,id_group,duty_date,duty_type)
+VALUES ?
+`
+
+db.query(sql,[values],(err)=>{
+
+if(err) return res.status(500).json(err)
+
+res.json({
+message:"Schedule saved"
+})
+
+})
+
+})
+
+
+// =====================
+// GET SCHEDULE
+// =====================
+
+app.get("/schedule",(req,res)=>{
+
+const sql=`
+SELECT
+s.id_schedule,
+s.duty_date,
+s.duty_type,
+d.name_doctor,
+d.id_group
+FROM schedule s
+JOIN doctors d
+ON s.id_doctor = d.id_doctor
+ORDER BY s.duty_date
+`
+
+db.query(sql,(err,result)=>{
+
+if(err) return res.status(500).json(err)
+
+res.json(result)
+
+})
+
+})
+
+
+// =====================
+// DELETE MONTH
+// =====================
+
+app.delete("/schedule/:year/:month",(req,res)=>{
+
+const {year,month}=req.params
+
+const sql=`
+DELETE FROM schedule
+WHERE YEAR(duty_date)=?
+AND MONTH(duty_date)=?
+`
+
+db.query(sql,[year,month],(err)=>{
+
+if(err) return res.status(500).json(err)
+
+res.json({
+message:"Schedule deleted"
+})
+
+})
+
+})
+
 
 // log in 
 

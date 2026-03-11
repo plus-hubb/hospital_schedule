@@ -1,76 +1,125 @@
 <script setup lang="ts">
-import { reactive, onMounted } from "vue"
+import { reactive, onMounted, ref } from "vue"
 import FullCalendar from "@fullcalendar/vue3"
 import dayGridPlugin from "@fullcalendar/daygrid"
 import interactionPlugin from "@fullcalendar/interaction"
 
 import NavbarDoc from "../../components/Navbar.vue"
+import { generateDutyEvents } from "../../utils/scheduleGenerator"
 
-// ── เปลี่ยนจาก getHolidays() มาใช้ generateDutyEvents + getThaiHolidayEvents ──
-import { generateDutyEvents, getThaiHolidayEvents } 
-from "../../utils/scheduleGenerator"
+const year = new Date().getFullYear()
+const currentMonth = ref(0)
 
-
-
-const calendarOptions: any = reactive({
-  plugins: [dayGridPlugin, interactionPlugin],
-  initialView: "dayGridMonth",
-  initialDate: `${new Date().getFullYear()}-03-01`, // เปิดที่มีนาคมก่อนเลย
-  height: "auto",
-
-  headerToolbar: {
-    left:   "prev,next today",
-    center: "title",
-    right:  "dayGridMonth,dayGridWeek",
-  },
-
-  events: [], // จะถูก set ใน onMounted
-
-  eventClick(info: any) {
-    alert(
-      "Duty: "  + info.event.title +
-      "\nDate: " + info.event.start.toLocaleDateString("th-TH", {
-        weekday: "long", year: "numeric", month: "long", day: "numeric",
-      }),
-    )
-  },
-})
-
-onMounted(async()=>{
-
-const res = await fetch(
-"https://balanced-upliftment-production-c650.up.railway.app/doctors"
-)
-
-const doctors = await res.json()
-
-const groups:any={
+const doctorsGroup:any = {
 A:[],
 B:[],
 C:[],
 D:[]
 }
 
+const calendarOptions:any = reactive({
+plugins:[dayGridPlugin,interactionPlugin],
+initialView:"dayGridMonth",
+height:"auto",
+events:[]
+})
+
+async function saveEvents(events:any[]){
+
+await fetch("https://balanced-upliftment-production-c650.up.railway.app/schedule",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(events)
+})
+
+}
+
+async function loadEvents(){
+
+const res = await fetch("https://balanced-upliftment-production-c650.up.railway.app/schedule")
+const data = await res.json()
+
+calendarOptions.events = data.map((e:any)=>({
+title: e.duty_type + " - " + e.name_doctor,
+date: e.duty_date
+}))
+
+}
+
+function generateMonth(){
+
+// ป้องกันกรณียังโหลด doctor ไม่เสร็จ
+if(
+doctorsGroup.A.length===0 &&
+doctorsGroup.B.length===0 &&
+doctorsGroup.C.length===0 &&
+doctorsGroup.D.length===0
+){
+alert("Doctors not loaded yet")
+return
+}
+
+// ป้องกันเกิน 12 เดือน
+if(currentMonth.value > 11){
+alert("Generated all months already")
+return
+}
+
+const events = generateDutyEvents(
+doctorsGroup,
+year,
+currentMonth.value
+)
+
+calendarOptions.events = [
+...calendarOptions.events,
+...events
+]
+
+saveEvents(events)
+
+currentMonth.value++
+
+}
+
+async function undoMonth(){
+
+currentMonth.value--
+
+if(currentMonth.value < 0){
+currentMonth.value = 0
+return
+}
+
+await fetch(
+`https://balanced-upliftment-production-c650.up.railway.app/schedule/${year}/${currentMonth.value+1}`,
+{ method:"DELETE" }
+)
+
+loadEvents()
+
+}
+
+onMounted(async()=>{
+
+const res = await fetch("https://balanced-upliftment-production-c650.up.railway.app/doctors")
+const doctors = await res.json()
+
 doctors.forEach((d:any)=>{
 
-if(d.id_group===1) groups.A.push(d.name_doctor)
-if(d.id_group===2) groups.B.push(d.name_doctor)
-if(d.id_group===3) groups.C.push(d.name_doctor)
-if(d.id_group===4) groups.D.push(d.name_doctor)
+if(d.id_group===1) doctorsGroup.A.push(d)
+if(d.id_group===2) doctorsGroup.B.push(d)
+if(d.id_group===3) doctorsGroup.C.push(d)
+if(d.id_group===4) doctorsGroup.D.push(d)
 
 })
 
-const year = new Date().getFullYear()
-
-const dutyEvents = generateDutyEvents(groups, year)
-const holidayEvents = getThaiHolidayEvents(year)
-
-
-calendarOptions.events=[...dutyEvents,...holidayEvents]
+await loadEvents()
 
 })
 </script>
-
 <template>
 
 <div class="layout">
@@ -80,6 +129,18 @@ calendarOptions.events=[...dutyEvents,...holidayEvents]
   <div class="content">
 
     <h1>Doctor Duty Schedule</h1>
+
+    <div class="controls">
+
+<button @click="generateMonth">
+Generate Month
+</button>
+
+<button @click="undoMonth">
+Undo Month
+</button>
+
+</div>
 
     <div class="legend">
       <span class="holiday"></span> Holiday
