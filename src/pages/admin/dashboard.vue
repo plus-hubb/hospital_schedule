@@ -87,7 +87,7 @@ calendarOptions.events=[...dutyEvents,...holidayEvents]
       <span class="groupB"></span> Group B
       <span class="groupC"></span> Group C
       <span class="groupD"></span> Group D
-      <span class="friday"></span> Random
+      <span class="friday"></span> Friday Rotation
     </div>
 
     <div class="calendar-card">
