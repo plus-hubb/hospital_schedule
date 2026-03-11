@@ -65,8 +65,10 @@ onMounted(async () => {
 
   })
 
-  const dutyEvents = generateDutyEvents(groups)
-  const holidayEvents = getThaiHolidayEvents()
+const year = new Date().getFullYear()
+
+const dutyEvents = generateDutyEvents(groups, year)
+const holidayEvents = getThaiHolidayEvents(year)
 
   // ถ้า admin → เห็นทั้งหมด
   if(role==="admin"){
@@ -103,7 +105,7 @@ onMounted(async () => {
       <span class="groupB"></span> Group B
       <span class="groupC"></span> Group C
       <span class="groupD"></span> Group D
-      <span class="friday"></span> Random
+      <span class="friday"></span> Friday Rotation
     </div>
 
     <div class="calendar-card">

@@ -84,14 +84,15 @@ if(d.id_group===4) groups.D.push(d.name_doctor)
 
 })
 
-const dutyEvents = generateDutyEvents(groups)
-const holidayEvents = getThaiHolidayEvents()
+const year = new Date().getFullYear()
+
+const dutyEvents = generateDutyEvents(groups, year)
+const holidayEvents = getThaiHolidayEvents(year)
 
 // ⭐ highlight เวรของหมอที่ login
 dutyEvents.forEach((e:any)=>{
 if(e.title.includes(user.name_doctor)){
-e.backgroundColor="#ff1744"
-e.borderColor="#ff1744"
+
 }
 })
 
@@ -144,7 +145,7 @@ showToast("⚠️ Duty Tomorrow",e.title)
       <span class="groupB"></span> Group B
       <span class="groupC"></span> Group C
       <span class="groupD"></span> Group D
-      <span class="friday"></span> Random
+      <span class="friday"></span> Friday Rotation
     </div>
 
     <div class="calendar-card">
