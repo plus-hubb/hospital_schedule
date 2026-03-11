@@ -1,63 +1,40 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue"
 import NavbarDoc from "../../components/NavbarDoc.vue"
-import { generateDutyEvents } from "../../utils/scheduleGenerator"
 
 const notifications = ref<any[]>([])
 
-// user ที่ login
+// user login
 const user = JSON.parse(sessionStorage.getItem("user") || "{}")
 
-onMounted(async () => {
+onMounted(async()=>{
 
   const res = await fetch(
-    "https://balanced-upliftment-production-c650.up.railway.app/doctors"
+  "https://balanced-upliftment-production-c650.up.railway.app/schedule"
   )
 
-  const doctors = await res.json()
-
-  const groups:any = {
-    A:[],
-    B:[],
-    C:[],
-    D:[]
-  }
-
-  doctors.forEach((d:any)=>{
-
-    if(d.id_group===1) groups.A.push(d.name_doctor)
-    if(d.id_group===2) groups.B.push(d.name_doctor)
-    if(d.id_group===3) groups.C.push(d.name_doctor)
-    if(d.id_group===4) groups.D.push(d.name_doctor)
-
-  })
-
-  const year = new Date().getFullYear()
-
-const dutyEvents = generateDutyEvents(groups, year)
-
+  const data = await res.json()
 
   const today = new Date()
   const tomorrow = new Date()
+
   tomorrow.setDate(today.getDate()+1)
 
-  // ⭐ ใช้เวลา local (ไทย) แทน UTC
   const todayStr = today.toLocaleDateString("sv-SE")
   const tomorrowStr = tomorrow.toLocaleDateString("sv-SE")
 
-  dutyEvents.forEach((e:any)=>{
+  data.forEach((e:any)=>{
 
-    // กันกรณี event มีเวลา
-    const eventDate = e.date?.slice(0,10)
+    const eventDate = e.duty_date.slice(0,10)
 
-    if(e.title.includes(user.name_doctor)){
+    if(e.name_doctor === user.name_doctor){
 
       if(eventDate === todayStr){
 
         notifications.value.push({
           title:"Duty Today",
-          message:`Today you have ${e.title}`,
-          date:e.date
+          message:`Today you have ${e.duty_type}`,
+          date:e.duty_date
         })
 
       }
@@ -66,8 +43,8 @@ const dutyEvents = generateDutyEvents(groups, year)
 
         notifications.value.push({
           title:"Duty Tomorrow",
-          message:`Tomorrow you have ${e.title}`,
-          date:e.date
+          message:`Tomorrow you have ${e.duty_type}`,
+          date:e.duty_date
         })
 
       }

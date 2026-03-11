@@ -5,84 +5,97 @@ import dayGridPlugin from "@fullcalendar/daygrid"
 import interactionPlugin from "@fullcalendar/interaction"
 
 import NavbarDoc from "../../components/NavbarDoc.vue"
+import { getThaiHolidayEvents } from "../../utils/scheduleGenerator"
 
-import { generateDutyEvents, getThaiHolidayEvents } 
-from "../../utils/scheduleGenerator"
-
-// ดึงข้อมูล user จาก login
+// user login
 const user = JSON.parse(sessionStorage.getItem("user")!)
 const role = sessionStorage.getItem("role")
 
-const calendarOptions: any = reactive({
-  plugins: [dayGridPlugin, interactionPlugin],
-  initialView: "dayGridMonth",
-  initialDate: `${new Date().getFullYear()}-03-01`,
-  height: "auto",
+const calendarOptions:any = reactive({
 
-  headerToolbar: {
-    left: "prev,next today",
-    center: "title",
-    right: "dayGridMonth,dayGridWeek",
+  plugins:[dayGridPlugin,interactionPlugin],
+
+  initialView:"dayGridMonth",
+
+  initialDate:`${new Date().getFullYear()}-03-01`,
+
+  height:"auto",
+
+  headerToolbar:{
+    left:"prev,next today",
+    center:"title",
+    right:"dayGridMonth,dayGridWeek"
   },
 
-  events: [],
+  events:[],
 
-  eventClick(info: any) {
+  eventClick(info:any){
+
     alert(
-      "Duty: " + info.event.title +
-      "\nDate: " +
-      info.event.start.toLocaleDateString("th-TH", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
+      "Duty: "+info.event.title+
+      "\nDate: "+
+      info.event.start.toLocaleDateString("th-TH",{
+        weekday:"long",
+        year:"numeric",
+        month:"long",
+        day:"numeric"
       })
     )
-  },
+
+  }
+
 })
 
-onMounted(async () => {
+onMounted(async()=>{
 
+  // ⭐ ดึง schedule จาก backend
   const res = await fetch(
-    "https://balanced-upliftment-production-c650.up.railway.app/doctors"
+  "https://balanced-upliftment-production-c650.up.railway.app/schedule"
   )
 
-  const doctors = await res.json()
+  const data = await res.json()
 
-  const groups:any={
-    A:[],
-    B:[],
-    C:[],
-    D:[]
-  }
+  const scheduleEvents = data.map((e:any)=>({
 
-  doctors.forEach((d:any)=>{
+    title:`${e.name_doctor} ${e.duty_type}`,
 
-    if(d.id_group===1) groups.A.push(d.name_doctor)
-    if(d.id_group===2) groups.B.push(d.name_doctor)
-    if(d.id_group===3) groups.C.push(d.name_doctor)
-    if(d.id_group===4) groups.D.push(d.name_doctor)
+    start:e.duty_date.substring(0,10),
 
-  })
+    backgroundColor:
+      e.id_group===1 ? "#43a047" :
+      e.id_group===2 ? "#1e88e5" :
+      e.id_group===3 ? "#fb8c00" :
+      "#8e24aa",
 
-const year = new Date().getFullYear()
+    borderColor:"transparent"
 
-const dutyEvents = generateDutyEvents(groups, year)
-const holidayEvents = getThaiHolidayEvents(year)
+  }))
 
-  // ถ้า admin → เห็นทั้งหมด
+  const year = new Date().getFullYear()
+
+  const holidayEvents = getThaiHolidayEvents(year)
+
+  // ⭐ admin เห็นทั้งหมด
   if(role==="admin"){
-    calendarOptions.events=[...dutyEvents,...holidayEvents]
+
+    calendarOptions.events=[
+      ...scheduleEvents,
+      ...holidayEvents
+    ]
+
   }
 
-  // ถ้า doctor → เห็นเฉพาะเวรตัวเอง
+  // ⭐ doctor เห็นเฉพาะเวรตัวเอง
   else{
 
-    const myEvents = dutyEvents.filter((e:any)=>
+    const myEvents = scheduleEvents.filter((e:any)=>
       e.title.includes(user.name_doctor)
     )
 
-    calendarOptions.events=[...myEvents,...holidayEvents]
+    calendarOptions.events=[
+      ...myEvents,
+      ...holidayEvents
+    ]
 
   }
 

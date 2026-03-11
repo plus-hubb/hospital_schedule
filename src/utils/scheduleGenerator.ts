@@ -34,14 +34,20 @@ return Math.floor(diffMs/(7*24*60*60*1000))
 }
 
 function pick(group:any[],weekIndex:number){
-if(!group||group.length===0) return null
-return group[weekIndex%group.length]
+
+if(!group || group.length===0) return null
+
+const index = weekIndex % group.length
+
+return group[index] ?? null
+
 }
 
 export function generateDutyEvents(
 DOCTORS:any,
 year:number,
-month:number
+month:number,
+holidays:Set<string> = new Set()
 ){
 
 const events:any[]=[]
@@ -49,10 +55,13 @@ const events:any[]=[]
 function isWorkday(d:Date){
 
 const dow=d.getDay()
+const iso=toIso(d)
 
 if(dow===0||dow===6) return false
+if(holidays.has(iso)) return false
 
 return true
+
 }
 
 const anchor=new Date(year,0,3)
@@ -76,6 +85,8 @@ if(dow===1){
 const d1=pick(DOCTORS.A,wi)
 const d2=pick(DOCTORS.B,wi)
 
+if(d1 && d2){
+
 events.push({
 title:`${d1.name_doctor} OPD`,
 date:iso,
@@ -93,6 +104,8 @@ id_doctor:d2.id_doctor,
 id_group:2,
 duty_type:"Consult"
 })
+
+}
 
 }
 
@@ -101,6 +114,8 @@ else if(dow===2){
 const d1=pick(DOCTORS.B,wi)
 const d2=pick(DOCTORS.C,wi)
 
+if(d1 && d2){
+
 events.push({
 title:`${d1.name_doctor} OPD`,
 date:iso,
@@ -121,10 +136,14 @@ duty_type:"Consult"
 
 }
 
+}
+
 else if(dow===3){
 
 const d1=pick(DOCTORS.C,wi)
 const d2=pick(DOCTORS.D,wi)
+
+if(d1 && d2){
 
 events.push({
 title:`${d1.name_doctor} OPD`,
@@ -146,10 +165,14 @@ duty_type:"Consult"
 
 }
 
+}
+
 else if(dow===4){
 
 const d1=pick(DOCTORS.D,wi)
 const d2=pick(DOCTORS.A,wi)
+
+if(d1 && d2){
 
 events.push({
 title:`${d1.name_doctor} OPD`,
@@ -168,6 +191,8 @@ id_doctor:d2.id_doctor,
 id_group:1,
 duty_type:"Consult"
 })
+
+}
 
 }
 
@@ -179,10 +204,16 @@ const fridayPairs:[string,string][] = [
 ["C","D"],
 ["D","A"]
 ]
+
 const pair = fridayPairs[wi % fridayPairs.length]!
 
-const d1=pick(DOCTORS[pair[0]],wi)
-const d2=pick(DOCTORS[pair[1]],wi)
+const g1 = DOCTORS[pair[0]] || []
+const g2 = DOCTORS[pair[1]] || []
+
+const d1 = pick(g1, wi)
+const d2 = pick(g2, wi)
+
+if(d1 && d2){
 
 events.push({
 title:`${d1.name_doctor} OPD`,
@@ -206,6 +237,8 @@ duty_type:"Consult"
 
 }
 
+}
+
 cur.setDate(cur.getDate()+1)
 
 }
@@ -214,46 +247,118 @@ return events
 
 }
 
-export function getThaiHolidayEvents(year:number){
+export function getThaiHolidayEvents(year: number) {
+  return [
+    {
+      title: "New Year's Day",
+      date: `${year}-01-01`,
+      color: "#e53935"
+    },
 
-return [
+    {
+      title: "Makha Bucha Day",
+      date: `${year}-03-03`,
+      color: "#e53935"
+    },
 
-{
-title:"New Year",
-date:`${year}-01-01`,
-color:"#e53935"
-},
+    {
+      title: "Chakri Memorial Day",
+      date: `${year}-04-06`,
+      color: "#e53935"
+    },
 
-{
-title:"Labour Day",
-date:`${year}-05-01`,
-color:"#e53935"
-},
+    {
+      title: "Songkran Festival",
+      date: `${year}-04-13`,
+      color: "#e53935"
+    },
+    {
+      title: "Songkran Holiday",
+      date: `${year}-04-14`,
+      color: "#e53935"
+    },
+    {
+      title: "Songkran Holiday",
+      date: `${year}-04-15`,
+      color: "#e53935"
+    },
 
-{
-title:"King Birthday",
-date:`${year}-07-28`,
-color:"#e53935"
-},
+    {
+      title: "Labour Day",
+      date: `${year}-05-01`,
+      color: "#e53935"
+    },
 
-{
-title:"Mother Day",
-date:`${year}-08-12`,
-color:"#e53935"
-},
+    {
+      title: "Coronation Day",
+      date: `${year}-05-04`,
+      color: "#e53935"
+    },
 
-{
-title:"Father Day",
-date:`${year}-12-05`,
-color:"#e53935"
-},
+    {
+      title: "Visakha Bucha Day",
+      date: `${year}-05-31`,
+      color: "#e53935"
+    },
 
-{
-title:"New Year's Eve",
-date:`${year}-12-31`,
-color:"#e53935"
-}
+    {
+      title: "Queen Suthida's Birthday",
+      date: `${year}-06-03`,
+      color: "#e53935"
+    },
 
-]
+    {
+      title: "Asalha Bucha Day",
+      date: `${year}-07-30`,
+      color: "#e53935"
+    },
 
+    {
+      title: "Buddhist Lent Day",
+      date: `${year}-07-31`,
+      color: "#e53935"
+    },
+
+    {
+      title: "King Vajiralongkorn's Birthday",
+      date: `${year}-07-28`,
+      color: "#e53935"
+    },
+
+    {
+      title: "Mother's Day (Queen Sirikit Birthday)",
+      date: `${year}-08-12`,
+      color: "#e53935"
+    },
+
+    {
+      title: "King Bhumibol Memorial Day",
+      date: `${year}-10-13`,
+      color: "#e53935"
+    },
+
+    {
+      title: "Chulalongkorn Day",
+      date: `${year}-10-23`,
+      color: "#e53935"
+    },
+
+    {
+      title: "Father's Day (King Bhumibol Birthday)",
+      date: `${year}-12-05`,
+      color: "#e53935"
+    },
+
+    {
+      title: "Constitution Day",
+      date: `${year}-12-10`,
+      color: "#e53935"
+    },
+
+    {
+      title: "New Year's Eve",
+      date: `${year}-12-31`,
+      color: "#e53935"
+    }
+  ];
 }
