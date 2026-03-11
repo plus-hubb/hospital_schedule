@@ -60,8 +60,11 @@ if(d.id_group===4) groups.D.push(d.name_doctor)
 
 })
 
-const dutyEvents = generateDutyEvents(groups)
-const holidayEvents = getThaiHolidayEvents()
+const year = new Date().getFullYear()
+
+const dutyEvents = generateDutyEvents(groups, year)
+const holidayEvents = getThaiHolidayEvents(year)
+
 
 calendarOptions.events=[...dutyEvents,...holidayEvents]
 
