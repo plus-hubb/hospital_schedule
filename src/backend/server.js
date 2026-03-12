@@ -9,6 +9,24 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+// =====================
+// ROLE MIDDLEWARE
+// =====================
+
+function checkAdmin(req,res,next){
+
+const role = req.headers.role
+
+if(role !== "admin"){
+return res.status(403).json({
+message:"Admin only"
+})
+}
+
+next()
+
+}
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
@@ -73,7 +91,7 @@ res.json(result)
 // ADD DOCTOR
 // =====================
 
-app.post("/doctors",(req,res)=>{
+app.post("/doctors", checkAdmin ,(req,res)=>{
 
 const {name_doctor,email,phone,password,id_group}=req.body
 
@@ -100,7 +118,7 @@ res.json({message:"Doctor added"})
 // UPDATE DOCTOR
 // =====================
 
-app.put("/doctors/:id",(req,res)=>{
+app.put("/doctors/:id", checkAdmin ,(req,res)=>{
 
 const {name_doctor,phone,password,id_group}=req.body
 
@@ -126,7 +144,7 @@ res.json({message:"Doctor updated"})
 // DELETE DOCTOR
 // =====================
 
-app.delete("/doctors/:id",(req,res)=>{
+app.delete("/doctors/:id", checkAdmin ,(req,res)=>{
 
 const sql=`
 DELETE FROM doctors
@@ -148,7 +166,7 @@ res.json({message:"Doctor deleted"})
 // SAVE SCHEDULE
 // =====================
 
-app.post("/schedule",(req,res)=>{
+app.post("/schedule", checkAdmin ,(req,res)=>{
 
 const schedules = req.body
 
@@ -212,7 +230,7 @@ res.json(result)
 // DELETE MONTH
 // =====================
 
-app.delete("/schedule/:year/:month",(req,res)=>{
+app.delete("/schedule/:year/:month", checkAdmin ,(req,res)=>{
 
 const {year,month}=req.params
 
