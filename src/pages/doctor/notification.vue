@@ -1,58 +1,51 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue"
 import NavbarDoc from "../../components/NavbarDoc.vue"
+import { getSchedule } from "../../services/api"
 
 const notifications = ref<any[]>([])
 
 // user login
 const user = JSON.parse(sessionStorage.getItem("user") || "{}")
 
-onMounted(async()=>{
+onMounted(async () => {
+  try {
+    const data = await getSchedule()
 
-  const res = await fetch(
-  "https://balanced-upliftment-production-c650.up.railway.app/schedule"
-  )
+    // วันนี้
+    const todayStr = new Date().toISOString().slice(0, 10)
 
-  const data = await res.json()
+    // วันพรุ่งนี้
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const tomorrowStr = tomorrow.toISOString().slice(0, 10)
 
-  const today = new Date()
-  const tomorrow = new Date()
+    ;(data || []).forEach((e: any) => {
+      if (!e.duty_date) return
 
-  tomorrow.setDate(today.getDate()+1)
+      const eventDate = String(e.duty_date).slice(0, 10)
 
-  const todayStr = today.toLocaleDateString("sv-SE")
-  const tomorrowStr = tomorrow.toLocaleDateString("sv-SE")
+      if (user?.name_doctor && e.name_doctor === user.name_doctor) {
+        if (eventDate === todayStr) {
+          notifications.value.push({
+            title: "Duty Today",
+            message: `Today you have ${e.duty_type || ""}`,
+            date: e.duty_date,
+          })
+        }
 
-  data.forEach((e:any)=>{
-
-    const eventDate = e.duty_date.slice(0,10)
-
-    if(e.name_doctor === user.name_doctor){
-
-      if(eventDate === todayStr){
-
-        notifications.value.push({
-          title:"Duty Today",
-          message:`Today you have ${e.duty_type}`,
-          date:e.duty_date
-        })
-
+        if (eventDate === tomorrowStr) {
+          notifications.value.push({
+            title: "Duty Tomorrow",
+            message: `Tomorrow you have ${e.duty_type || ""}`,
+            date: e.duty_date,
+          })
+        }
       }
-
-      if(eventDate === tomorrowStr){
-
-        notifications.value.push({
-          title:"Duty Tomorrow",
-          message:`Tomorrow you have ${e.duty_type}`,
-          date:e.duty_date
-        })
-
-      }
-
-    }
-
-  })
-
+    })
+  } catch (err) {
+    console.error("Error loading notifications from Supabase:", err)
+  }
 })
 </script>
 

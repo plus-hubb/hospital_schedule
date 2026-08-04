@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import { useRouter } from "vue-router"
+// 🟢 1. Import ฟังก์ชัน login จากไฟล์ api.js (ปรับ path ให้ตรงกับที่วางไฟล์ไว้)
+import { login as loginApi } from "../services/api" 
 
 const router = useRouter()
 
@@ -10,59 +12,38 @@ const error = ref("")
 const loading = ref(false)
 
 const login = async () => {
-
   error.value = ""
   loading.value = true
 
-  try{
-
-    const res = await fetch(
-      "https://balanced-upliftment-production-c650.up.railway.app/login",
-      {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify({
-          email:email.value,
-          password:password.value
-        })
-      }
-    )
-
-    const data = await res.json()
-
-    // login fail
-    if(!res.ok){
-      error.value = data.message || "Email or password incorrect"
-      loading.value = false
-      return
-    }
+  try {
+    // 🟢 2. เรียกใช้ฟังก์ชันจาก api.js โดยส่ง email และ password เข้าไป
+    const data = await loginApi(email.value, password.value)
 
     // clear session
     sessionStorage.clear()
 
     // save role + user
-    sessionStorage.setItem("role",data.role)
-    sessionStorage.setItem("user",JSON.stringify(data.user))
+    sessionStorage.setItem("role", data.role)
+    sessionStorage.setItem("user", JSON.stringify(data.user))
 
     // save doctor id
-    if(data.role==="doctor"){
-      sessionStorage.setItem("doctorId",data.user.id_doctor)
+    if (data.role === "doctor") {
+      sessionStorage.setItem("doctorId", data.user.id_doctor)
     }
 
     // redirect
-    if(data.role==="admin"){
+    if (data.role === "admin") {
       router.push("/admin/dashboard")
-    }else{
+    } else {
       router.push("/doctor/homepage")
     }
 
-  }catch(err){
-    error.value = "Server error"
+  } catch (err: any) {
+    // 🟢 3. จัดการ Error message จาก Supabase
+    error.value = err.message || "Email or password incorrect"
+  } finally {
+    loading.value = false
   }
-
-  loading.value = false
 }
 </script>
 

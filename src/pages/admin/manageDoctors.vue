@@ -1,98 +1,114 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue"
 import Navbar from "../../components/Navbar.vue"
+// 🟢 Import ฟังก์ชัน CRUD จาก api.ts
+import { 
+  getDoctors, 
+  getGroups, 
+  addDoctor as addDoctorApi, 
+  updateDoctor as updateDoctorApi, 
+  deleteDoctor as deleteDoctorApi 
+} from "../../services/api"
 
-interface Doctor{
-  id_doctor:number
-  name_doctor:string
-  email:string
-  phone:string
-  password:string
-  id_group:number
-  name_group:string
+interface Doctor {
+  id_doctor: number
+  name_doctor: string
+  email: string
+  phone: string
+  password?: string
+  id_group: number
+  name_group?: string
 }
 
-interface Group{
-  id_group:number
-  name_group:string
+interface Group {
+  id_group: number
+  name_group: string
 }
 
 const doctors = ref<Doctor[]>([])
 const groups = ref<Group[]>([])
+const loading = ref(false)
+const error = ref("")
 
 const newDoctor = ref({
-  name_doctor:"",
-  email:"",
-  phone:"",
-  password:"",
-  id_group:1
+  name_doctor: "",
+  email: "",
+  phone: "",
+  password: "",
+  id_group: 1
 })
 
-const editingDoctor = ref<any>(null)
+const editingDoctor = ref<Doctor | null>(null)
 
-// FETCH DOCTORS
-const fetchDoctors = async ()=>{
-  const res = await fetch("https://balanced-upliftment-production-c650.up.railway.app/doctors")
-  doctors.value = await res.json()
-}
-
-// FETCH GROUPS
-const fetchGroups = async ()=>{
-  const res = await fetch("https://balanced-upliftment-production-c650.up.railway.app/groups")
-  groups.value = await res.json()
-}
-
-onMounted(()=>{
-  fetchDoctors()
-  fetchGroups()
-})
-
-// ADD
-const addDoctor = async ()=>{
-  await fetch("https://balanced-upliftment-production-c650.up.railway.app/doctors",{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify(newDoctor.value)
-  })
-
-  fetchDoctors()
-
-  newDoctor.value={
-    name_doctor:"",
-    email:"",
-    phone:"",
-    password:"",
-    id_group:1
+// 🟢 FETCH DOCTORS & GROUPS (ผ่าน Supabase)
+const loadData = async () => {
+  error.value = ""
+  loading.value = true
+  try {
+    const [doctorsData, groupsData] = await Promise.all([
+      getDoctors(),
+      getGroups()
+    ])
+    doctors.value = doctorsData || []
+    groups.value = groupsData || []
+  } catch (err: any) {
+    console.error("Error loading data:", err)
+    error.value = err.message || "Failed to load data"
+  } finally {
+    loading.value = false
   }
 }
 
-// DELETE
-const deleteDoctor = async(id:number)=>{
-  await fetch(`https://balanced-upliftment-production-c650.up.railway.app/doctors/${id}`,{
-    method:"DELETE"
-  })
+onMounted(() => {
+  loadData()
+})
 
-  fetchDoctors()
+// 🟢 ADD DOCTOR
+const addDoctor = async () => {
+  try {
+    await addDoctorApi(newDoctor.value)
+    await loadData()
+
+    // Reset Form
+    newDoctor.value = {
+      name_doctor: "",
+      email: "",
+      phone: "",
+      password: "",
+      id_group: 1
+    }
+  } catch (err: any) {
+    alert("เพิ่มข้อมูลไม่สำเร็จ: " + (err.message || err))
+  }
 }
 
-// EDIT
-const startEdit=(doctor:Doctor)=>{
-  editingDoctor.value={...doctor}
+// 🟢 DELETE DOCTOR
+const deleteDoctor = async (id: number) => {
+  if (!confirm("คุณต้องการลบข้อมูลแพทย์คนนี้ใช่หรือไม่?")) return
+
+  try {
+    await deleteDoctorApi(id)
+    await loadData()
+  } catch (err: any) {
+    alert("ลบข้อมูลไม่สำเร็จ: " + (err.message || err))
+  }
 }
 
-const updateDoctor = async()=>{
-  await fetch(`https://balanced-upliftment-production-c650.up.railway.app/doctors/${editingDoctor.value.id_doctor}`,{
-    method:"PUT",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify(editingDoctor.value)
-  })
+// 🟢 EDIT DOCTOR
+const startEdit = (doctor: Doctor) => {
+  editingDoctor.value = { ...doctor }
+}
 
-  editingDoctor.value=null
-  fetchDoctors()
+const updateDoctor = async () => {
+  if (!editingDoctor.value) return
+
+  try {
+    await updateDoctorApi(editingDoctor.value.id_doctor, editingDoctor.value)
+    editingDoctor.value = null
+    await loadData()
+  } catch (err: any) {
+    alert("แก้ไขข้อมูลไม่สำเร็จ: " + (err.message || err))
+  }
 }
 </script>
 

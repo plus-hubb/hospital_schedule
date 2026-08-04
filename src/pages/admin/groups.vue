@@ -30,53 +30,56 @@ v-for="doctor in doctorsByGroup(group.id_group)"
 </template>
 
 <script setup lang="ts">
-
 import { ref, onMounted } from "vue"
 import Navbar from "../../components/Navbar.vue"
+import { getDoctors, getGroups } from "../../services/api"
 
-interface Doctor{
-id_doctor:number
-name_doctor:string
-id_group:number
+interface Doctor {
+  id_doctor: number
+  name_doctor: string
+  id_group: number
 }
 
-interface Group{
-id_group:number
-name_group:string
+interface Group {
+  id_group: number
+  name_group: string
 }
 
 const doctors = ref<Doctor[]>([])
 const groups = ref<Group[]>([])
+const loading = ref(false)
+const error = ref("")
 
+// 🟢 ดึงข้อมูลทั้งหมดในฟังก์ชันเดียว
+const loadData = async () => {
+  error.value = ""
+  loading.value = true
 
-// FETCH DOCTORS
-const fetchDoctors = async ()=>{
+  try {
+    // รันดึงข้อมูลพร้อมกันแบบรองรับ Error Handling ที่ถูกต้อง
+    const [doctorsData, groupsData] = await Promise.all([
+      getDoctors(),
+      getGroups()
+    ])
 
-const res = await fetch("https://balanced-upliftment-production-c650.up.railway.app/doctors")
-doctors.value = await res.json()
-
+    doctors.value = doctorsData || []
+    groups.value = groupsData || []
+  } catch (err: any) {
+    console.error("Error loading data:", err)
+    error.value = err.message || "Failed to load data"
+  } finally {
+    loading.value = false
+  }
 }
 
-
-// FETCH GROUPS
-const fetchGroups = async ()=>{
-
-const res = await fetch("https://balanced-upliftment-production-c650.up.railway.app/groups")
-groups.value = await res.json()
-
-}
-
-onMounted(()=>{
-fetchDoctors()
-fetchGroups()
+onMounted(() => {
+  loadData()
 })
 
-
-// FILTER DOCTOR BY GROUP
-const doctorsByGroup = (id:number)=>{
-return doctors.value.filter(d => d.id_group === id)
+// 🟢 กรองหมอตามกลุ่ม (แปลง id เป็น String ป้องกันปัญหา Type ไม่ตรงกัน)
+const doctorsByGroup = (groupId: number | string) => {
+  return doctors.value.filter(d => String(d.id_group) === String(groupId))
 }
-
 </script>
 
 <style scoped>

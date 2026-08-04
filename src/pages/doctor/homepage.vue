@@ -6,156 +6,124 @@ import interactionPlugin from "@fullcalendar/interaction"
 
 import NavbarDoc from "../../components/NavbarDoc.vue"
 import { getThaiHolidayEvents } from "../../utils/scheduleGenerator"
+// 🟢 Import getSchedule จาก api.ts
+import { getSchedule } from "../../services/api"
 
 const user = JSON.parse(sessionStorage.getItem("user") || "{}")
 
 // ======================
 // TOAST
 // ======================
-
 const toast = ref({
-  show:false,
-  title:"",
-  message:""
+  show: false,
+  title: "",
+  message: ""
 })
 
-function showToast(title:string,message:string){
-
-  toast.value={
-    show:true,
+function showToast(title: string, message: string) {
+  toast.value = {
+    show: true,
     title,
     message
   }
 
-  setTimeout(()=>{
-    toast.value.show=false
-  },4000)
+  setTimeout(() => {
+    toast.value.show = false
+  }, 4000)
 }
 
 const events = ref<any[]>([])
 
-const calendarOptions:any = reactive({
-
-  plugins:[dayGridPlugin,interactionPlugin],
-
-  initialView:"dayGridMonth",
-
-  height:"auto",
-
-  timeZone:"Asia/Bangkok",
-
-  headerToolbar:{
-    left:"prev,next today",
-    center:"title",
-    right:"dayGridMonth,dayGridWeek"
+const calendarOptions: any = reactive({
+  plugins: [dayGridPlugin, interactionPlugin],
+  initialView: "dayGridMonth",
+  height: "auto",
+  timeZone: "Asia/Bangkok",
+  headerToolbar: {
+    left: "prev,next today",
+    center: "title",
+    right: "dayGridMonth,dayGridWeek"
   },
-
-  events:[],
-
-  eventClick(info:any){
-
+  events: [],
+  eventClick(info: any) {
     showToast(
       "Duty Detail",
-      `${info.event.title} - `+
-      info.event.start.toLocaleDateString("th-TH",{
-        weekday:"long",
-        year:"numeric",
-        month:"long",
-        day:"numeric"
+      `${info.event.title} - ` +
+      info.event.start.toLocaleDateString("th-TH", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
       })
     )
-
   }
-
 })
 
-
 // ======================
-// LOAD EVENTS
+// LOAD EVENTS (Supabase)
 // ======================
+async function loadEvents() {
+  try {
+    // 🟢 ดึงข้อมูลตารางเวรจาก Supabase ผ่าน api.ts
+    const data = await getSchedule()
 
-async function loadEvents(){
-
-  const res = await fetch(
-  "https://balanced-upliftment-production-c650.up.railway.app/schedule"
-  )
-
-  const data = await res.json()
-
-  const scheduleEvents = data.map((e:any)=>({
-
-    title:`${e.name_doctor} ${e.duty_type}`,
-
-    start:e.duty_date.substring(0,10),
-
-    backgroundColor:
-    e.id_group===1 ? "#43a047" :
-    e.id_group===2 ? "#1e88e5" :
-    e.id_group===3 ? "#fb8c00" :
-    "#8e24aa",
-
-    borderColor:"transparent",
-
-    extendedProps:{
-      doctor:e.name_doctor
-    }
-
-  }))
-
-  const year = new Date().getFullYear()
-
-  const holidayEvents = getThaiHolidayEvents(year).map((h:any)=>({
-
-    title:h.title,
-
-    start:h.date,
-
-    backgroundColor:"#e53935",
-
-    borderColor:"transparent"
-
-  }))
-
-  events.value = [
-  ...scheduleEvents,
-  ...holidayEvents
-  ]
-
-  calendarOptions.events = events.value
-
-
-  // ======================
-  // NOTIFICATION
-  // ======================
-
-  const today = new Date().toLocaleDateString("sv-SE")
-  const tomorrow = new Date(Date.now()+86400000)
-  .toLocaleDateString("sv-SE")
-
-  scheduleEvents.forEach((e:any)=>{
-
-    if(e.title.includes(user.name_doctor)){
-
-      if(e.start === today){
-        setTimeout(()=>{
-          showToast("🔔 Duty Today",e.title)
-        },500)
+    const scheduleEvents = data.map((e: any) => ({
+      title: `${e.name_doctor || "แพทย์"} ${e.duty_type || ""}`,
+      start: String(e.duty_date).substring(0, 10),
+      backgroundColor:
+        e.id_group === 1 ? "#43a047" :
+        e.id_group === 2 ? "#1e88e5" :
+        e.id_group === 3 ? "#fb8c00" :
+        "#8e24aa",
+      borderColor: "transparent",
+      extendedProps: {
+        doctor: e.name_doctor
       }
+    }))
 
-      if(e.start === tomorrow){
-        setTimeout(()=>{
-          showToast("⚠️ Duty Tomorrow",e.title)
-        },900)
+    const year = new Date().getFullYear()
+    const holidayEvents = getThaiHolidayEvents(year).map((h: any) => ({
+      title: h.title,
+      start: h.date,
+      backgroundColor: "#e53935",
+      borderColor: "transparent"
+    }))
+
+    events.value = [
+      ...scheduleEvents,
+      ...holidayEvents
+    ]
+
+    calendarOptions.events = events.value
+
+    // ======================
+    // NOTIFICATION
+    // ======================
+    const today = new Date().toLocaleDateString("sv-SE")
+    const tomorrow = new Date(Date.now() + 86400000).toLocaleDateString("sv-SE")
+
+    scheduleEvents.forEach((e: any) => {
+      if (user?.name_doctor && e.title.includes(user.name_doctor)) {
+        if (e.start === today) {
+          setTimeout(() => {
+            showToast("🔔 Duty Today", e.title)
+          }, 500)
+        }
+
+        if (e.start === tomorrow) {
+          setTimeout(() => {
+            showToast("⚠️ Duty Tomorrow", e.title)
+          }, 900)
+        }
       }
-
-    }
-
-  })
-
+    })
+  } catch (err: any) {
+    console.error("Failed to load schedules:", err)
+    showToast("Error", err.message || "Failed to load schedule")
+  }
 }
 
 onMounted(loadEvents)
-
 </script>
 
 

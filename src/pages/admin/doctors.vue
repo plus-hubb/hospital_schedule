@@ -35,35 +35,44 @@
 </template>
 
 <script setup lang="ts">
-
 import { ref, onMounted } from "vue"
 import Navbar from "../../components/Navbar.vue"
+// 🟢 1. Import ฟังก์ชัน getDoctors จากไฟล์ api.js / api.ts (ปรับ path ให้ตรงกับที่วางไฟล์ไว้)
+import { getDoctors } from "../../services/api"
 
 interface Doctor {
+  id_doctor?: number
   name_doctor: string
   email: string
-  name_group: string
   phone: string
-  password: string
+  password?: string
+  id_group?: number
+  name_group?: string
 }
 
 const doctors = ref<Doctor[]>([])
+const loading = ref(false)
+const error = ref("")
 
-onMounted(async () => {
+// 🟢 2. เรียกใช้ฟังก์ชันดึงข้อมูลจาก api.ts
+const fetchDoctors = async () => {
+  error.value = ""
+  loading.value = true
 
-try{
-
-const res = await fetch("https://balanced-upliftment-production-c650.up.railway.app/doctors")
-const data = await res.json()
-
-doctors.value = data
-
-}catch(err){
-console.error(err)
+  try {
+    const data = await getDoctors()
+    doctors.value = data
+  } catch (err: any) {
+    // 🟢 3. จัดการ Error message จาก Supabase
+    error.value = err.message || "Failed to fetch doctors"
+  } finally {
+    loading.value = false
+  }
 }
 
+onMounted(() => {
+  fetchDoctors()
 })
-
 </script>
 
 <style scoped>

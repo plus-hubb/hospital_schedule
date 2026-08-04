@@ -6,99 +6,78 @@ import interactionPlugin from "@fullcalendar/interaction"
 
 import NavbarDoc from "../../components/NavbarDoc.vue"
 import { getThaiHolidayEvents } from "../../utils/scheduleGenerator"
+// 🟢 Import getSchedule จาก api.ts
+import { getSchedule } from "../../services/api"
 
 // user login
-const user = JSON.parse(sessionStorage.getItem("user")!)
+const user = JSON.parse(sessionStorage.getItem("user") || "{}")
 const role = sessionStorage.getItem("role")
 
-const calendarOptions:any = reactive({
-
-  plugins:[dayGridPlugin,interactionPlugin],
-
-  initialView:"dayGridMonth",
-
-  initialDate:`${new Date().getFullYear()}-03-01`,
-
-  height:"auto",
-
-  headerToolbar:{
-    left:"prev,next today",
-    center:"title",
-    right:"dayGridMonth,dayGridWeek"
+const calendarOptions: any = reactive({
+  plugins: [dayGridPlugin, interactionPlugin],
+  initialView: "dayGridMonth",
+  initialDate: `${new Date().getFullYear()}-03-01`,
+  height: "auto",
+  headerToolbar: {
+    left: "prev,next today",
+    center: "title",
+    right: "dayGridMonth,dayGridWeek"
   },
-
-  events:[],
-
-  eventClick(info:any){
-
+  events: [],
+  eventClick(info: any) {
     alert(
-      "Duty: "+info.event.title+
-      "\nDate: "+
-      info.event.start.toLocaleDateString("th-TH",{
-        weekday:"long",
-        year:"numeric",
-        month:"long",
-        day:"numeric"
+      "Duty: " + info.event.title +
+      "\nDate: " +
+      info.event.start.toLocaleDateString("th-TH", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
       })
     )
-
   }
-
 })
 
-onMounted(async()=>{
+onMounted(async () => {
+  try {
+    // 🟢 ดึง schedule จาก Supabase ผ่าน api.ts
+    const data = await getSchedule()
 
-  // ⭐ ดึง schedule จาก backend
-  const res = await fetch(
-  "https://balanced-upliftment-production-c650.up.railway.app/schedule"
-  )
+    const scheduleEvents = (data || []).map((e: any) => ({
+      title: `${e.name_doctor || "แพทย์"} ${e.duty_type || ""}`,
+      start: String(e.duty_date).substring(0, 10),
+      backgroundColor:
+        e.id_group === 1 ? "#43a047" :
+        e.id_group === 2 ? "#1e88e5" :
+        e.id_group === 3 ? "#fb8c00" :
+        "#8e24aa",
+      borderColor: "transparent"
+    }))
 
-  const data = await res.json()
+    const year = new Date().getFullYear()
+    const holidayEvents = getThaiHolidayEvents(year)
 
-  const scheduleEvents = data.map((e:any)=>({
+    // ⭐ admin เห็นทั้งหมด
+    if (role === "admin") {
+      calendarOptions.events = [
+        ...scheduleEvents,
+        ...holidayEvents
+      ]
+    }
+    // ⭐ doctor เห็นเฉพาะเวรตัวเอง
+    else {
+      const myEvents = scheduleEvents.filter((e: any) =>
+        user?.name_doctor ? e.title.includes(user.name_doctor) : false
+      )
 
-    title:`${e.name_doctor} ${e.duty_type}`,
-
-    start:e.duty_date.substring(0,10),
-
-    backgroundColor:
-      e.id_group===1 ? "#43a047" :
-      e.id_group===2 ? "#1e88e5" :
-      e.id_group===3 ? "#fb8c00" :
-      "#8e24aa",
-
-    borderColor:"transparent"
-
-  }))
-
-  const year = new Date().getFullYear()
-
-  const holidayEvents = getThaiHolidayEvents(year)
-
-  // ⭐ admin เห็นทั้งหมด
-  if(role==="admin"){
-
-    calendarOptions.events=[
-      ...scheduleEvents,
-      ...holidayEvents
-    ]
-
+      calendarOptions.events = [
+        ...myEvents,
+        ...holidayEvents
+      ]
+    }
+  } catch (err: any) {
+    console.error("Error loading schedule from Supabase:", err)
   }
-
-  // ⭐ doctor เห็นเฉพาะเวรตัวเอง
-  else{
-
-    const myEvents = scheduleEvents.filter((e:any)=>
-      e.title.includes(user.name_doctor)
-    )
-
-    calendarOptions.events=[
-      ...myEvents,
-      ...holidayEvents
-    ]
-
-  }
-
 })
 </script>
 
