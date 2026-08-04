@@ -69,11 +69,25 @@ export function generateDutyEvents(
 
   const cur = new Date(start)
 
+console.log("A", DOCTORS.A.map((d: any) => d.name_doctor))
+console.log("B", DOCTORS.B.map((d: any) => d.name_doctor))
+console.log("C", DOCTORS.C.map((d: any) => d.name_doctor))
+console.log("D", DOCTORS.D.map((d: any) => d.name_doctor))
+
   while (cur <= end) {
     if (isWorkday(cur)) {
       const iso = toIso(cur)
       const dow = cur.getDay()
       const wi = getWeekIndex(cur, anchorMon)
+
+      console.log(
+      "Date:", iso,
+      "WeekIndex:", wi,
+      "A:", pick(DOCTORS.A, wi)?.name_doctor,
+      "B:", pick(DOCTORS.B, wi)?.name_doctor,
+      "C:", pick(DOCTORS.C, wi)?.name_doctor,
+      "D:", pick(DOCTORS.D, wi)?.name_doctor
+    )
 
       if (dow === 1) {
         const d1 = pick(DOCTORS.A, wi)
@@ -158,14 +172,14 @@ export function generateDutyEvents(
             duty_type: "OPD"
           })
 
-          events.push({
+         events.push({
             title: `${d2.name_doctor} Consult`,
             date: iso,
             color: GROUP_COLOR.A,
-            id_doctor: d1.id_doctor,
+            id_doctor: d2.id_doctor,
             id_group: 1,
             duty_type: "Consult"
-          })
+})
         }
       } else if (dow === 5) {
         const fridayPairs: [string, string][] = [

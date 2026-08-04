@@ -172,13 +172,13 @@ onMounted(async () => {
     // 🟢 ดึงรายชื่อแพทย์จาก Supabase
     const doctors = await getDoctors()
 
-    doctors.forEach((d: any) => {
-      if (d.id_group === 1) doctorsGroup.A.push(d)
-      if (d.id_group === 2) doctorsGroup.B.push(d)
-      if (d.id_group === 3) doctorsGroup.C.push(d)
-      if (d.id_group === 4) doctorsGroup.D.push(d)
-    })
+    const sortDoctors = (arr: any[]) =>
+  arr.sort((a, b) => a.id_doctor - b.id_doctor)
 
+doctorsGroup.A = sortDoctors(doctors.filter((d: any) => d.id_group === 1))
+doctorsGroup.B = sortDoctors(doctors.filter((d: any) => d.id_group === 2))
+doctorsGroup.C = sortDoctors(doctors.filter((d: any) => d.id_group === 3))
+doctorsGroup.D = sortDoctors(doctors.filter((d: any) => d.id_group === 4))
     await loadEvents()
   } catch (err: any) {
     console.error("Failed to load doctors:", err)
